@@ -42,7 +42,7 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        /* FIX: 最強硬的防左右移動修正 */
+        /* 核心防溢出修正：確保沒有任何東西可以推動水平滾動條 */
         html, body {
             overflow-x: hidden;
             min-width: 320px;
@@ -186,6 +186,7 @@
 
         .list-grid {
             display: grid;
+            /* 預設寬螢幕：多欄 */
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
@@ -240,20 +241,22 @@
             .toolbar { flex-direction: column; align-items: flex-start; }
             .toolbar-group { width: 100%; justify-content: space-between; }
             
-            /* 🔥 關鍵修正：將最小欄位寬度從 140px 降至 135px，確保在 iPhone 12 等窄螢幕上兩個卡片能安全並排。 */
+            /* 🔥 關鍵修正 1：在窄螢幕上強制單欄顯示。
+               這徹底消除 Grid 嘗試並排兩個卡片導致的溢出風險。*/
             .list-grid {
-                grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+                grid-template-columns: 1fr;
                 gap: 10px;
             }
             
             /* 確保單欄模式下，新增區塊也能利用所有寬度 */
             .card {
-                padding: 20px; /* 稍微縮小內邊距以在移動端更緊湊 */
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
+
     <header>
         <h1>JP日文單字卡</h1>
         <div class="header-controls">
@@ -392,7 +395,7 @@
     </main>
     
     <script>
-        // JS 內容保持上一輪的完整版本，包括下載備份的 setTimeout 修正
+        // --- 核心變數 ---
         let words = JSON.parse(localStorage.getItem('jp_words')) || [];
         let reviewQueue = [];
         let currentIndex = 0;
@@ -411,6 +414,7 @@
         const quitBtn = document.getElementById('btn-quit-review');
         const fileSec = document.getElementById('file-section');
 
+        // --- 語音控制 (維持不變) ---
         function loadVoices() {
             const voices = speechSynthesis.getVoices();
             voiceSelect.innerHTML = '<option value="">系統預設</option>';
@@ -440,6 +444,7 @@
         }
         window.testVoice = () => { speak('こんにちは'); }
 
+        // --- 資料儲存與排序 (維持不變) ---
         function save() {
             localStorage.setItem('jp_words', JSON.stringify(words));
             render();
@@ -457,6 +462,7 @@
             return list;
         }
 
+        // --- 渲染核心函數 (維持不變) ---
         function render() {
             const grid = document.getElementById('word-grid');
             const term = document.getElementById('search').value.toLowerCase();
@@ -501,6 +507,7 @@
             });
         }
 
+        // --- 單字庫操作 (維持不變) ---
         window.changePage = (delta) => {
             currentPage += delta;
             render();
@@ -512,7 +519,7 @@
                 save();
             }
         };
-
+        // ... (複習模式邏輯維持不變) ...
         function loadCard() {
             if(currentIndex >= reviewQueue.length) {
                 reviewArea.classList.add('hidden');
@@ -570,16 +577,22 @@
             render();
         };
 
+        // --- 🔥 檔案匯出修正 (修正 2：改用 Data URI/Base64 下載) ---
         window.exportData = () => {
-            const blob = new Blob([JSON.stringify(words,null,2)], {type:'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `jp_backup_${new Date().toISOString().slice(0,10)}.json`;
+            const json = JSON.stringify(words, null, 2);
+            const date = new Date().toISOString().slice(0, 10);
+            const filename = `jp_backup_${date}.json`;
+
+            // Base64 編碼 JSON 數據
+            const base64Data = btoa(unescape(encodeURIComponent(json)));
+            const dataUri = `data:application/json;charset=utf-8;base64,${base64Data}`;
             
-            setTimeout(() => {
-                a.click();
-                URL.revokeObjectURL(a.href);
-            }, 0);
+            const a = document.createElement('a');
+            a.href = dataUri;
+            a.download = filename;
+            
+            // 立即點擊，Data URI 在移動端比 Blob URL 更穩定
+            a.click();
         };
         
         window.importData = (input) => {
@@ -596,6 +609,7 @@
             reader.readAsText(file);
         };
         
+        // --- 事件監聽器 (維持不變) ---
         voiceSelect.addEventListener('change', () => {
             localStorage.setItem('jp_voice', voiceSelect.value);
             testVoice();
