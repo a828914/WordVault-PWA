@@ -215,26 +215,35 @@
         }
         .page-info { color: var(--color-sub); font-size: 0.9rem; }
         
-        /* --- 複習模式樣式 (Review Mode) --- */
+        /* --- 複習模式樣式 (Review Mode) - 最終重構穩定版 --- */
         .review-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            /* 移除 display: flex，改用 Block 佈局確保寬度計算穩定 */
+            display: block; 
             width: 100%;
             max-width: 600px;
-            margin: 0 auto;
+            margin: 0 auto; /* 確保區塊置中 */
             padding: 20px;
             text-align: center;
-            /* 🔥 最終修正：加入 flex-basis: 100% 確保寬度計算正確，解決 display: flex 導致的塌陷問題 */
-            flex-basis: 100%;
+            /* 確保在 .container (Grid 容器) 中獨佔全寬 */
+            grid-column: 1 / -1; 
+        }
+
+        #review-area {
+            /* 確保這個區域佔用最大可用寬度並居中 */
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .flashcard-container {
             width: 100%;
-            /* 關鍵：設定容器高度比例，避免塌陷 */
-            padding-top: 66.66%; /* 3:2 比例 */
+            /* 🚨 關鍵修正：不再使用 padding-top (依賴寬度)，直接設定一個可靠的固定高度 */
+            height: 350px; 
             position: relative;
             margin-bottom: 25px;
+            /* 新增陰影以突出卡片範圍 */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+            border-radius: var(--radius);
         }
 
         .flashcard {
@@ -247,7 +256,6 @@
             transform-style: preserve-3d; 
             transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border-radius: var(--radius);
         }
 
@@ -277,6 +285,10 @@
             font-size: 4rem;
             font-weight: 700;
             color: var(--color-accent);
+            /* 確保文本不會因為長度過長而導致卡片溢出 */
+            word-break: break-word; 
+            text-align: center;
+            line-height: 1.2;
         }
         .hint-text {
             position: absolute;
@@ -287,13 +299,16 @@
 
         /* 背面 */
         .back {
-            /* 關鍵：將背面轉到看不見的位置 */
             transform: rotateY(180deg); 
         }
         .back-detail {
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* 確保內容在卡片內垂直置中 */
+            justify-content: center;
+            height: 100%; 
+            padding: 20px;
         }
         .back-hira {
             font-size: 1.2rem;
@@ -304,13 +319,17 @@
             font-size: 1.1rem;
             font-weight: 500;
             color: var(--color-text);
+            /* 確保文本不會因為長度過長而導致卡片溢出 */
+            word-break: break-word; 
+            text-align: center;
         }
 
         /* 評級按鈕 */
         .review-actions {
             display: flex;
+            justify-content: center;
             gap: 30px;
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
         .rating-btn {
@@ -372,6 +391,11 @@
             }
             .front-text {
                 font-size: 3rem;
+            }
+
+            /* 手機上降低卡片高度，避免內容被截斷 */
+            .flashcard-container {
+                height: 300px;
             }
         }
     </style>
@@ -540,6 +564,7 @@
             const voices = speechSynthesis.getVoices();
             voiceSelect.innerHTML = '<option value="">系統預設</option>';
             voices.forEach(v => {
+                // 篩選日文或常用的通用語音
                 if(v.lang.includes('ja') || v.name.includes('Google') || v.lang.includes('jp')) {
                     const opt = document.createElement('option');
                     opt.value = v.name;
@@ -550,6 +575,7 @@
             const saved = localStorage.getItem('jp_voice');
             if(saved) voiceSelect.value = saved;
         }
+        // 確保語音列表載入後執行
         speechSynthesis.onvoiceschanged = loadVoices;
         
         function speak(text) {
@@ -640,24 +666,29 @@
             }
         };
 
+        // --- 複習模式邏輯 ---
         function loadCard() {
             if(currentIndex >= reviewQueue.length) {
+                // 複習完成
                 reviewArea.classList.add('hidden');
                 reviewDone.classList.remove('hidden');
                 quitBtn.classList.add('hidden');
                 return;
             }
 
+            // 重置卡片狀態
             flashcard.classList.remove('flipped');
             ratingBtns.classList.add('hidden');
             
+            // 播放動畫
             flashcard.classList.remove('anim-pop');
-            void flashcard.offsetWidth;
+            void flashcard.offsetWidth; // 觸發重繪
             flashcard.classList.add('anim-pop');
 
             const w = reviewQueue[currentIndex];
             document.getElementById('review-left').textContent = reviewQueue.length - currentIndex;
 
+            // 設置卡片內容
             document.getElementById('rev-front').textContent = w.ja;
             document.getElementById('rev-ja').textContent = w.ja;
             document.getElementById('rev-hira').textContent = w.hira;
@@ -681,6 +712,7 @@
                     flashcard.classList.add('anim-pop');
                 } else {
                     if(target.level > 0) target.level--;
+                    // 不正確時播放震動動畫
                     flashcard.classList.add('anim-shake');
                     setTimeout(() => flashcard.classList.remove('anim-shake'), 400);
                 }
@@ -688,6 +720,7 @@
             save();
 
             currentIndex++;
+            // 延遲載入下一張卡，等待動畫結束
             setTimeout(loadCard, 400);
         };
 
@@ -697,7 +730,7 @@
             render();
         };
 
-        // --- 檔案匯入匯出 (下載已修正為 Base64/Data URI，提高移動端成功率) ---
+        // --- 檔案匯入匯出 (使用 Data URI 提高移動端下載成功率) ---
         window.exportData = () => {
             const json = JSON.stringify(words, null, 2);
             const date = new Date().toISOString().slice(0, 10);
@@ -773,6 +806,7 @@
         document.getElementById('start-review-btn').addEventListener('click', () => {
             if(words.length === 0) return alert('請先新增單字');
             
+            // 按照熟悉度（低到高）排序，確保先複習不熟的
             reviewQueue = [...words].sort((a,b) => (a.level||0) - (b.level||0));
             currentIndex = 0;
 
@@ -787,6 +821,7 @@
         });
 
         flashcard.addEventListener('click', () => {
+            // 翻轉卡片
             if(!flashcard.classList.contains('flipped')) {
                 flashcard.classList.add('flipped');
                 ratingBtns.classList.remove('hidden');
