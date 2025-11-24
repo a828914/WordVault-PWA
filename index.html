@@ -84,7 +84,6 @@
         /* --- Header (第一區塊) --- */
         header {
             max-width: 1000px;
-            /* 標頭使用內部 padding 確保內容對齊 3vw 邊界 */
             padding: 20px var(--spacing-h) 30px var(--spacing-h);
             margin: 0 auto;
             width: 100%; 
@@ -128,9 +127,7 @@
         /* --- 設定與篩選列 (第二區塊) --- */
         .toolbar {
             max-width: 1000px;
-            /* 使用 margin-left/right 確保 3vw 外部呼吸空間 */
             margin: 0 var(--spacing-h) 20px var(--spacing-h); 
-            /* 區塊的實際寬度 = 100% - 左右邊界 */
             width: calc(100% - 2 * var(--spacing-h)); 
             
             display: flex; gap: 15px; flex-wrap: wrap; background: var(--bg-card);
@@ -150,9 +147,7 @@
         /* --- 主容器 (第三區塊) --- */
         .container {
             max-width: 1000px;
-            /* 使用 margin-left/right 確保 3vw 外部呼吸空間 */
             margin: 0 var(--spacing-h);
-            /* 區塊的實際寬度 = 100% - 左右邊界 */
             width: calc(100% - 2 * var(--spacing-h)); 
             
             padding: 0; display: grid; grid-template-columns: 1fr 2fr;
@@ -186,7 +181,6 @@
 
         .list-grid {
             display: grid;
-            /* 預設寬螢幕：多欄 */
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
@@ -391,7 +385,7 @@
     </main>
     
     <script>
-        // --- 核心變數 (維持不變) ---
+        // --- 核心變數 ---
         let words = JSON.parse(localStorage.getItem('jp_words')) || [];
         let reviewQueue = [];
         let currentIndex = 0;
@@ -502,7 +496,7 @@
             });
         }
 
-        // --- 複習模式與刪除 (維持不變) ---
+        // --- 單字庫操作 (維持不變) ---
         window.changePage = (delta) => {
             currentPage += delta;
             render();
@@ -572,7 +566,7 @@
             render();
         };
 
-        // --- 檔案匯入匯出 (下載已修正為 Base64/Data URI) ---
+        // --- 檔案匯入匯出 (下載已修正為 Base64/Data URI，提高移動端成功率) ---
         window.exportData = () => {
             const json = JSON.stringify(words, null, 2);
             const date = new Date().toISOString().slice(0, 10);
