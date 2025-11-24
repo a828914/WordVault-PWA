@@ -40,10 +40,15 @@
             background: var(--bg-body);
             color: var(--color-text);
             margin: 0;
-            padding: 20px;
+            /* FIX 1: 移除 body 的 padding，將邊界控制交給內部容器 */
+            padding: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            
+            /* FIX 2: 禁用水平滾動，防止左右移動 */
+            overflow-x: hidden;
+            min-width: 320px;
         }
         
         .hidden { display: none !important; }
@@ -73,7 +78,9 @@
         /* --- Header --- */
         header {
             max-width: 1000px;
-            margin: 0 auto 30px;
+            /* FIX 3: 為主要容器重新加入垂直和水平 padding (20px) */
+            padding: 20px 20px 30px 20px;
+            margin: 0 auto;
             width: 100%;
             display: flex;
             justify-content: space-between;
@@ -136,13 +143,14 @@
         /* --- 設定與篩選列 --- */
         .toolbar {
             max-width: 1000px;
+            /* FIX 3: 為主要容器重新加入垂直和水平 padding (20px) */
             margin: 0 auto 20px;
             width: 100%;
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
             background: var(--bg-card);
-            padding: 15px;
+            padding: 15px 20px; /* 調整 padding */
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
             align-items: center;
@@ -170,7 +178,9 @@
         /* --- 主容器 --- */
         .container {
             max-width: 1000px;
+            /* FIX 3: 為主要容器重新加入水平 padding (20px) */
             margin: 0 auto;
+            padding: 0 20px; 
             width: 100%;
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -371,10 +381,18 @@
 
         /* RWD */
         @media (max-width: 800px) {
-            .container { grid-template-columns: 1fr; }
-            header { flex-direction: column; align-items: flex-start; }
+            .container { 
+                grid-template-columns: 1fr;
+                /* 由於 body padding 移除了，這裡只需要垂直間距 */
+                padding: 0 20px; 
+            }
+            header { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                padding: 20px 20px 30px 20px;
+            }
             .header-controls { width: 100%; justify-content: space-between; margin-top: 15px; }
-            .toolbar { flex-direction: column; align-items: flex-start; }
+            .toolbar { flex-direction: column; align-items: flex-start; padding: 15px 20px; }
             .toolbar-group { width: 100%; justify-content: space-between; }
         }
     </style>
@@ -814,6 +832,13 @@
         
         // PWA
         if('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js');
+
+        // 初始載入時設定頁碼
+        document.addEventListener('DOMContentLoaded', () => {
+            itemsPerPage = parseInt(document.getElementById('items-per-page').value);
+            sortMethod = document.getElementById('sort-by').value;
+            render();
+        });
     </script>
 </body>
 </html>
