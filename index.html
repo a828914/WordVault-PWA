@@ -6,7 +6,8 @@
     <title>🇯🇵 JP日文單字卡</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json"> 
+    
+    <link rel="manifest" href="manifest.json"> 
     
     <style>
         :root {
@@ -163,7 +164,6 @@
             background: var(--bg-card); border-radius: var(--radius);
             padding: 30px; box-shadow: var(--shadow-sm); height: fit-content;
         }
-        /* ... (其餘內部樣式維持不變) ... */
         h3 { margin: 0 0 20px; font-size: 1.2rem; color: var(--color-text); font-weight: 700; }
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--color-sub); font-weight: 500; }
@@ -220,11 +220,9 @@
             margin-top: auto; padding-top: 20px;
         }
         .page-info { color: var(--color-sub); font-size: 0.9rem; }
-        /* ... (複習模式樣式維持不變) ... */
 
         /* RWD 區塊修正 */
         @media (max-width: 800px) {
-            /* 這些外部容器的 margin/width: calc() 確保了 3vw 的安全邊界 */
             .toolbar, .container {
                 margin: 0 var(--spacing-h) 20px var(--spacing-h);
                 width: calc(100% - 2 * var(--spacing-h));
@@ -241,14 +239,12 @@
             .toolbar { flex-direction: column; align-items: flex-start; }
             .toolbar-group { width: 100%; justify-content: space-between; }
             
-            /* 🔥 關鍵修正 1：在窄螢幕上強制單欄顯示。
-               這徹底消除 Grid 嘗試並排兩個卡片導致的溢出風險。*/
+            /* 修正寬度溢出問題: 強制單欄顯示 */
             .list-grid {
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
             
-            /* 確保單欄模式下，新增區塊也能利用所有寬度 */
             .card {
                 padding: 20px;
             }
@@ -395,7 +391,7 @@
     </main>
     
     <script>
-        // --- 核心變數 ---
+        // --- 核心變數 (維持不變) ---
         let words = JSON.parse(localStorage.getItem('jp_words')) || [];
         let reviewQueue = [];
         let currentIndex = 0;
@@ -444,7 +440,7 @@
         }
         window.testVoice = () => { speak('こんにちは'); }
 
-        // --- 資料儲存與排序 (維持不變) ---
+        // --- 資料儲存與渲染 (維持不變) ---
         function save() {
             localStorage.setItem('jp_words', JSON.stringify(words));
             render();
@@ -462,7 +458,6 @@
             return list;
         }
 
-        // --- 渲染核心函數 (維持不變) ---
         function render() {
             const grid = document.getElementById('word-grid');
             const term = document.getElementById('search').value.toLowerCase();
@@ -507,7 +502,7 @@
             });
         }
 
-        // --- 單字庫操作 (維持不變) ---
+        // --- 複習模式與刪除 (維持不變) ---
         window.changePage = (delta) => {
             currentPage += delta;
             render();
@@ -519,7 +514,7 @@
                 save();
             }
         };
-        // ... (複習模式邏輯維持不變) ...
+
         function loadCard() {
             if(currentIndex >= reviewQueue.length) {
                 reviewArea.classList.add('hidden');
@@ -577,13 +572,12 @@
             render();
         };
 
-        // --- 🔥 檔案匯出修正 (修正 2：改用 Data URI/Base64 下載) ---
+        // --- 檔案匯入匯出 (下載已修正為 Base64/Data URI) ---
         window.exportData = () => {
             const json = JSON.stringify(words, null, 2);
             const date = new Date().toISOString().slice(0, 10);
             const filename = `jp_backup_${date}.json`;
 
-            // Base64 編碼 JSON 數據
             const base64Data = btoa(unescape(encodeURIComponent(json)));
             const dataUri = `data:application/json;charset=utf-8;base64,${base64Data}`;
             
@@ -591,7 +585,6 @@
             a.href = dataUri;
             a.download = filename;
             
-            // 立即點擊，Data URI 在移動端比 Blob URL 更穩定
             a.click();
         };
         
@@ -677,7 +670,10 @@
             }
         });
 
-        if('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js');
+        // 🔥 修正 2: 移除斜線 /，並指定 scope: './' 確保 Service Worker 在子目錄下正確註冊
+        if('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js', { scope: './' });
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             loadVoices();
