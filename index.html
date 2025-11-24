@@ -217,7 +217,7 @@
         
         /* --- 複習模式樣式 (Review Mode) - 最終重構穩定版 --- */
         .review-section {
-            /* 移除 display: flex，改用 Block 佈局確保寬度計算穩定 */
+            /* 確保區塊級別顯示 */
             display: block; 
             width: 100%;
             max-width: 600px;
@@ -231,43 +231,41 @@
         #review-area {
             /* 確保這個區域佔用最大可用寬度並居中 */
             width: 100%;
-            max-width: 500px;
+            max-width: 500px; /* 限制卡片最大寬度 */
             margin: 0 auto;
+            /* 啟用 3D 視角，這是實現翻轉動畫的必要條件 */
+            perspective: 1000px; 
         }
 
         .flashcard-container {
             width: 100%;
-            /* 🚨 關鍵修正：不再使用 padding-top (依賴寬度)，直接設定一個可靠的固定高度 */
+            /* 🚨 關鍵修正：固定高度，確保流動空間穩定 */
             height: 350px; 
-            position: relative;
             margin-bottom: 25px;
-            /* 新增陰影以突出卡片範圍 */
+            
+            /* 啟用 3D 空間，確保子元素可以翻轉 */
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
             border-radius: var(--radius);
         }
 
         .flashcard {
-            position: absolute;
+            /* 內層容器，負責容納 front/back */
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d; 
+        }
+
+        .front, .back {
+            /* 關鍵：使用 absolute 讓 front/back 脫離流動並重疊，這是 3D 翻轉的標準做法 */
+            position: absolute; 
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            /* 關鍵：啟用 3D 空間 */
-            transform-style: preserve-3d; 
-            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-            cursor: pointer;
-            border-radius: var(--radius);
-        }
-
-        .flashcard.flipped {
-            transform: rotateY(180deg);
-        }
-
-        .front, .back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            /* 關鍵：翻轉時隱藏背面 */
+            
             backface-visibility: hidden; 
             display: flex;
             justify-content: center;
@@ -275,6 +273,16 @@
             background: var(--bg-card);
             border-radius: var(--radius);
             padding: 30px;
+        }
+
+        /* 確保背面的初始狀態是面向後方 */
+        .back {
+            transform: rotateY(180deg); 
+        }
+
+        /* 點擊後，對父容器應用翻轉 */
+        .flashcard-container.flipped {
+            transform: rotateY(180deg);
         }
 
         /* 正面 */
@@ -285,7 +293,6 @@
             font-size: 4rem;
             font-weight: 700;
             color: var(--color-accent);
-            /* 確保文本不會因為長度過長而導致卡片溢出 */
             word-break: break-word; 
             text-align: center;
             line-height: 1.2;
@@ -297,32 +304,20 @@
             color: var(--color-sub);
         }
 
-        /* 背面 */
-        .back {
-            transform: rotateY(180deg); 
-        }
+        /* 背面細節 - 🚨 修正：確保內容在塊級佈局中也能正常顯示 */
         .back-detail {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            /* 確保內容在卡片內垂直置中 */
-            justify-content: center;
+            display: block; 
             height: 100%; 
             padding: 20px;
-        }
-        .back-hira {
-            font-size: 1.2rem;
-            color: var(--color-sub);
-            margin-bottom: 15px;
-        }
-        .back-info {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--color-text);
-            /* 確保文本不會因為長度過長而導致卡片溢出 */
-            word-break: break-word; 
+            overflow-y: auto; 
             text-align: center;
         }
+        /* 確保 back 內部的元素能在塊級佈局中正確對齊 */
+        .back h2, .back .back-hira, .back .back-info {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
 
         /* 評級按鈕 */
         .review-actions {
@@ -343,37 +338,40 @@
         }
 
         .btn-correct {
-            background-color: var(--lvl-3); /* 綠色 */
-        }
-        .btn-correct:hover {
-            background-color: #27ae60;
+            background-color: var(--lvl-3);
         }
 
         .btn-wrong {
-            background-color: var(--lvl-0); /* 紅色 */
-        }
-        .btn-wrong:hover {
-            background-color: #c0392b;
+            background-color: var(--lvl-0);
         }
 
-
-        /* RWD 區塊修正 */
+        /* RWD 區塊修正 - 🚨 修正：強制使用固定像素間距，解決 iPhone 爆版問題 */
         @media (max-width: 800px) {
-            .toolbar, .container {
-                margin: 0 var(--spacing-h) 20px var(--spacing-h);
-                width: calc(100% - 2 * var(--spacing-h));
+            /* 修正：在行動裝置上使用固定間距，避免 vw 導致的計算溢出 */
+            :root {
+                --spacing-h: 15px; /* 使用固定的 15px 作為水平間距 */
             }
-            .container { 
-                grid-template-columns: 1fr;
-                padding: 0; 
+            
+            .toolbar, .container {
+                max-width: 100%;
+                margin: 0 auto 20px auto; 
+                width: 100%;
+                /* 讓內邊距處理間距 */
+                padding: 0 var(--spacing-h); 
             }
             header { 
                 flex-direction: column; align-items: flex-start; 
                 padding: 20px var(--spacing-h) 30px var(--spacing-h);
             }
             .header-controls { width: 100%; justify-content: space-between; margin-top: 15px; }
-            .toolbar { flex-direction: column; align-items: flex-start; }
+            .toolbar { flex-direction: column; align-items: flex-start; padding: 15px var(--spacing-h); }
             .toolbar-group { width: 100%; justify-content: space-between; }
+            
+            .container { 
+                grid-template-columns: 1fr;
+                /* 確保內容不會溢出 */
+                padding: 0 var(--spacing-h); 
+            }
             
             /* 修正寬度溢出問題: 強制單欄顯示 */
             .list-grid {
@@ -387,7 +385,7 @@
             
             /* 確保複習模式在手機上置中 */
             .review-section {
-                padding: 10px var(--spacing-h);
+                padding: 10px var(--spacing-h); 
             }
             .front-text {
                 font-size: 3rem;
@@ -403,7 +401,7 @@
 <body>
 
     <header>
-        <h1>JP日文單字卡</h1>
+        <h1>🇯🇵 JP日文單字卡</h1>
         <div class="header-controls">
             <button class="btn-ghost" id="toggle-file-btn">📂 檔案</button>
             <button class="btn-primary" id="start-review-btn">🧠 開始複習</button>
@@ -539,324 +537,324 @@
 
     </main>
     
-   <script>
-    // --- 核心變數 ---
-    let words = JSON.parse(localStorage.getItem('jp_words')) || [];
-    let reviewQueue = [];
-    let currentIndex = 0;
-    
-    let currentPage = 1;
-    let itemsPerPage = 10;
-    let sortMethod = 'level_asc';
-
-    const voiceSelect = document.getElementById('voice-select');
-    const reviewView = document.getElementById('review-view');
-    const normalView = document.getElementById('normal-view');
-    const flashcard = document.getElementById('flashcard');
-    const ratingBtns = document.getElementById('rating-btns');
-    const reviewArea = document.getElementById('review-area');
-    const reviewDone = document.getElementById('review-done');
-    const quitBtn = document.getElementById('btn-quit-review');
-    const fileSec = document.getElementById('file-section');
-
-    // --- 語音控制 ---
-    function loadVoices() {
-        const voices = speechSynthesis.getVoices();
-        voiceSelect.innerHTML = '<option value="">系統預設</option>';
-        voices.forEach(v => {
-            // 篩選日文或常用的通用語音
-            if(v.lang.includes('ja') || v.name.includes('Google') || v.lang.includes('jp')) {
-                const opt = document.createElement('option');
-                opt.value = v.name;
-                opt.textContent = v.name;
-                voiceSelect.appendChild(opt);
-            }
-        });
-        const saved = localStorage.getItem('jp_voice');
-        if(saved) voiceSelect.value = saved;
-    }
-    // 確保語音列表載入後執行
-    speechSynthesis.onvoiceschanged = loadVoices;
-    
-    function speak(text) {
-        speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'ja-JP';
-        const vName = voiceSelect.value;
-        if(vName) {
-            const v = speechSynthesis.getVoices().find(x => x.name === vName);
-            if(v) u.voice = v;
-        }
-        speechSynthesis.speak(u);
-    }
-    window.testVoice = () => { speak('こんにちは'); }
-
-    // --- 資料儲存與渲染 ---
-    function save() {
-        localStorage.setItem('jp_words', JSON.stringify(words));
-        render();
-    }
-
-    function getSortedWords() {
-        let list = [...words];
-        if(sortMethod === 'level_asc') {
-            list.sort((a,b) => (a.level||0) - (b.level||0) || b.id - a.id);
-        } else if(sortMethod === 'level_desc') {
-            list.sort((a,b) => (b.level||0) - (a.level||0) || b.id - a.id);
-        } else if(sortMethod === 'newest') {
-            list.sort((a,b) => b.id - a.id);
-        }
-        return list;
-    }
-
-    function render() {
-        const grid = document.getElementById('word-grid');
-        const term = document.getElementById('search').value.toLowerCase();
+    <script>
+        // --- 核心變數 ---
+        let words = JSON.parse(localStorage.getItem('jp_words')) || [];
+        let reviewQueue = [];
+        let currentIndex = 0;
         
-        let filtered = getSortedWords().filter(w => 
-            w.ja.includes(term) || w.hira.includes(term) || w.zh.includes(term)
-        );
-        
-        document.getElementById('total-count').textContent = filtered.length;
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let sortMethod = 'level_asc';
 
-        const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
-        if(currentPage > totalPages) currentPage = totalPages;
-        if(currentPage < 1) currentPage = 1;
-        
-        document.getElementById('curr-page').textContent = currentPage;
-        document.getElementById('total-page').textContent = totalPages;
+        const voiceSelect = document.getElementById('voice-select');
+        const reviewView = document.getElementById('review-view');
+        const normalView = document.getElementById('normal-view');
+        const flashcard = document.getElementById('flashcard');
+        const ratingBtns = document.getElementById('rating-btns');
+        const reviewArea = document.getElementById('review-area');
+        const reviewDone = document.getElementById('review-done');
+        const quitBtn = document.getElementById('btn-quit-review');
+        const fileSec = document.getElementById('file-section');
 
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageItems = filtered.slice(start, end);
-
-        grid.innerHTML = '';
-        pageItems.forEach((w, idx) => {
-            const el = document.createElement('div');
-            const lvl = w.level || 0;
-            el.className = `word-card lvl-${lvl} anim-fade-in`;
-            el.style.animationDelay = `${idx * 0.05}s`;
-
-            el.innerHTML = `
-                <div class="wc-content">
-                    <div class="wc-ja">${w.ja}</div>
-                    <div class="wc-hira">${w.hira}</div>
-                    <div class="wc-zh">${w.zh}</div>
-                </div>
-                <span class="wc-tag">Lv.${lvl}</span>
-                <div class="wc-actions">
-                    <button class="icon-btn" onclick="speak('${w.ja}')">🔊</button>
-                    <button class="icon-btn del-btn" onclick="delWord(${w.id})">🗑️</button>
-                </div>
-            `;
-            grid.appendChild(el);
-        });
-    }
-
-    // --- 單字庫操作 ---
-    window.changePage = (delta) => {
-        currentPage += delta;
-        render();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-    window.delWord = (id) => {
-        if(confirm('刪除此單字?')) {
-            words = words.filter(w => w.id !== id);
-            save();
-        }
-    };
-
-    // --- 複習模式邏輯 ---
-    function loadCard() {
-        if(currentIndex >= reviewQueue.length) {
-            // 複習完成
-            reviewArea.classList.add('hidden');
-            reviewDone.classList.remove('hidden');
-            quitBtn.classList.add('hidden');
-            return;
-        }
-
-        const container = flashcard.parentElement;
-        // 重置卡片狀態 (將 flipped 類別加到 container)
-        container.classList.remove('flipped');
-        ratingBtns.classList.add('hidden');
-        
-        // 播放動畫
-        container.classList.remove('anim-pop');
-        void container.offsetWidth; // 觸發重繪
-        container.classList.add('anim-pop');
-
-        const w = reviewQueue[currentIndex];
-        document.getElementById('review-left').textContent = reviewQueue.length - currentIndex;
-
-        // 設置卡片內容
-        document.getElementById('rev-front').textContent = w.ja;
-        document.getElementById('rev-ja').textContent = w.ja;
-        document.getElementById('rev-hira').textContent = w.hira;
-        document.getElementById('rev-zh').textContent = w.zh;
-        document.getElementById('rev-pitch').textContent = w.pitch;
-
-        document.getElementById('rev-speak-btn').onclick = (e) => {
-            e.stopPropagation();
-            speak(w.ja);
-        };
-    }
-
-    window.rateWord = (isCorrect) => {
-        const container = flashcard.parentElement;
-        const w = reviewQueue[currentIndex];
-        const target = words.find(x => x.id === w.id);
-        
-        if(target) {
-            target.level = target.level || 0;
-            if(isCorrect) {
-                if(target.level < 5) target.level++;
-                container.classList.add('anim-pop');
-            } else {
-                if(target.level > 0) target.level--;
-                // 不正確時播放震動動畫
-                container.classList.add('anim-shake');
-                setTimeout(() => container.classList.remove('anim-shake'), 400);
-            }
-        }
-        save();
-
-        currentIndex++;
-        // 延遲載入下一張卡，等待動畫結束
-        setTimeout(loadCard, 400);
-    };
-
-    window.exitReview = () => {
-        reviewView.classList.add('hidden');
-        normalView.classList.remove('hidden');
-        render();
-    };
-
-    // --- 檔案匯入匯出 (使用 Blob 修正行動裝置下載問題) ---
-    window.exportData = () => {
-        const json = JSON.stringify(words, null, 2);
-        const date = new Date().toISOString().slice(0, 10);
-        const filename = `jp_backup_${date}.json`;
-
-        // 🚨 關鍵修正：使用 Blob 物件替代 Data URI，確保 iPhone Chrome 能正常下載。
-        const blob = new Blob([json], { type: 'application/json' });
-        
-        // 建立一個臨時 URL
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        
-        // 觸發下載
-        a.click();
-        
-        // 清理臨時 URL，釋放記憶體
-        setTimeout(() => {
-            URL.revokeObjectURL(url);
-        }, 100);
-
-        // 給予行動裝置使用者提示
-        alert('備份檔案已嘗試下載，請檢查您的下載項目或檔案 App。');
-    };
-    
-    window.importData = (input) => {
-        const file = input.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            try {
-                words = JSON.parse(e.target.result);
-                save();
-                alert('匯入成功');
-            } catch(err) { alert('格式錯誤'); }
-        };
-        reader.readAsText(file);
-    };
-    
-    // --- 事件監聽器 ---
-    voiceSelect.addEventListener('change', () => {
-        localStorage.setItem('jp_voice', voiceSelect.value);
-        testVoice();
-    });
-
-    document.getElementById('items-per-page').addEventListener('change', (e) => {
-        itemsPerPage = parseInt(e.target.value);
-        currentPage = 1;
-        render();
-    });
-
-    document.getElementById('sort-by').addEventListener('change', (e) => {
-        sortMethod = e.target.value;
-        render();
-    });
-
-    document.getElementById('search').addEventListener('input', () => {
-        currentPage = 1;
-        render();
-    });
-
-    document.getElementById('toggle-file-btn').onclick = () => fileSec.classList.toggle('hidden');
-
-    document.getElementById('add-form').addEventListener('submit', e => {
-        e.preventDefault();
-        const ja = document.getElementById('in-ja').value.trim();
-        const hira = document.getElementById('in-hira').value.trim();
-        const zh = document.getElementById('in-zh').value.trim();
-        const pitch = document.getElementById('in-pitch').value;
-        const lvl = parseInt(document.getElementById('in-level').value);
-
-        if(ja && hira) {
-            words.unshift({
-                id: Date.now(), ja, hira, zh, pitch, level: lvl
+        // --- 語音控制 ---
+        function loadVoices() {
+            const voices = speechSynthesis.getVoices();
+            voiceSelect.innerHTML = '<option value="">系統預設</option>';
+            voices.forEach(v => {
+                // 篩選日文或常用的通用語音
+                if(v.lang.includes('ja') || v.name.includes('Google') || v.lang.includes('jp')) {
+                    const opt = document.createElement('option');
+                    opt.value = v.name;
+                    opt.textContent = v.name;
+                    voiceSelect.appendChild(opt);
+                }
             });
-            save();
-            e.target.reset();
-            currentPage = 1;
+            const saved = localStorage.getItem('jp_voice');
+            if(saved) voiceSelect.value = saved;
+        }
+        // 確保語音列表載入後執行
+        speechSynthesis.onvoiceschanged = loadVoices;
+        
+        function speak(text) {
+            speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'ja-JP';
+            const vName = voiceSelect.value;
+            if(vName) {
+                const v = speechSynthesis.getVoices().find(x => x.name === vName);
+                if(v) u.voice = v;
+            }
+            speechSynthesis.speak(u);
+        }
+        window.testVoice = () => { speak('こんにちは'); }
+
+        // --- 資料儲存與渲染 ---
+        function save() {
+            localStorage.setItem('jp_words', JSON.stringify(words));
             render();
         }
-    });
 
-    document.getElementById('start-review-btn').addEventListener('click', () => {
-        if(words.length === 0) return alert('請先新增單字');
-        
-        // 按照熟悉度（低到高）排序，確保先複習不熟的
-        reviewQueue = [...words].sort((a,b) => (a.level||0) - (b.level||0));
-        currentIndex = 0;
-
-        normalView.classList.add('hidden');
-        fileSec.classList.add('hidden');
-        reviewView.classList.remove('hidden');
-        reviewArea.classList.remove('hidden');
-        reviewDone.classList.add('hidden');
-        quitBtn.classList.remove('hidden');
-        
-        loadCard();
-    });
-
-    flashcard.addEventListener('click', () => {
-        const container = flashcard.parentElement; // 獲取 .flashcard-container
-        
-        // 翻轉卡片
-        if(!container.classList.contains('flipped')) {
-            container.classList.add('flipped');
-            ratingBtns.classList.remove('hidden');
-            const w = reviewQueue[currentIndex];
-            speak(w.ja);
+        function getSortedWords() {
+            let list = [...words];
+            if(sortMethod === 'level_asc') {
+                list.sort((a,b) => (a.level||0) - (b.level||0) || b.id - a.id);
+            } else if(sortMethod === 'level_desc') {
+                list.sort((a,b) => (b.level||0) - (a.level||0) || b.id - a.id);
+            } else if(sortMethod === 'newest') {
+                list.sort((a,b) => b.id - a.id);
+            }
+            return list;
         }
-    });
 
-    // 修正 Service Worker 註冊，使用相對路徑
-    if('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js', { scope: './' });
-    }
+        function render() {
+            const grid = document.getElementById('word-grid');
+            const term = document.getElementById('search').value.toLowerCase();
+            
+            let filtered = getSortedWords().filter(w => 
+                w.ja.includes(term) || w.hira.includes(term) || w.zh.includes(term)
+            );
+            
+            document.getElementById('total-count').textContent = filtered.length;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadVoices();
-        itemsPerPage = parseInt(document.getElementById('items-per-page').value);
-        sortMethod = document.getElementById('sort-by').value;
-        render();
-    });
-</script>
+            const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+            if(currentPage > totalPages) currentPage = totalPages;
+            if(currentPage < 1) currentPage = 1;
+            
+            document.getElementById('curr-page').textContent = currentPage;
+            document.getElementById('total-page').textContent = totalPages;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = filtered.slice(start, end);
+
+            grid.innerHTML = '';
+            pageItems.forEach((w, idx) => {
+                const el = document.createElement('div');
+                const lvl = w.level || 0;
+                el.className = `word-card lvl-${lvl} anim-fade-in`;
+                el.style.animationDelay = `${idx * 0.05}s`;
+
+                el.innerHTML = `
+                    <div class="wc-content">
+                        <div class="wc-ja">${w.ja}</div>
+                        <div class="wc-hira">${w.hira}</div>
+                        <div class="wc-zh">${w.zh}</div>
+                    </div>
+                    <span class="wc-tag">Lv.${lvl}</span>
+                    <div class="wc-actions">
+                        <button class="icon-btn" onclick="speak('${w.ja}')">🔊</button>
+                        <button class="icon-btn del-btn" onclick="delWord(${w.id})">🗑️</button>
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        // --- 單字庫操作 ---
+        window.changePage = (delta) => {
+            currentPage += delta;
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        window.delWord = (id) => {
+            if(confirm('刪除此單字?')) {
+                words = words.filter(w => w.id !== id);
+                save();
+            }
+        };
+
+        // --- 複習模式邏輯 ---
+        function loadCard() {
+            if(currentIndex >= reviewQueue.length) {
+                // 複習完成
+                reviewArea.classList.add('hidden');
+                reviewDone.classList.remove('hidden');
+                quitBtn.classList.add('hidden');
+                return;
+            }
+
+            const container = flashcard.parentElement;
+            // 重置卡片狀態 (將 flipped 類別加到 container)
+            container.classList.remove('flipped');
+            ratingBtns.classList.add('hidden');
+            
+            // 播放動畫
+            container.classList.remove('anim-pop');
+            void container.offsetWidth; // 觸發重繪
+            container.classList.add('anim-pop');
+
+            const w = reviewQueue[currentIndex];
+            document.getElementById('review-left').textContent = reviewQueue.length - currentIndex;
+
+            // 設置卡片內容
+            document.getElementById('rev-front').textContent = w.ja;
+            document.getElementById('rev-ja').textContent = w.ja;
+            document.getElementById('rev-hira').textContent = w.hira;
+            document.getElementById('rev-zh').textContent = w.zh;
+            document.getElementById('rev-pitch').textContent = w.pitch;
+
+            document.getElementById('rev-speak-btn').onclick = (e) => {
+                e.stopPropagation();
+                speak(w.ja);
+            };
+        }
+
+        window.rateWord = (isCorrect) => {
+            const container = flashcard.parentElement;
+            const w = reviewQueue[currentIndex];
+            const target = words.find(x => x.id === w.id);
+            
+            if(target) {
+                target.level = target.level || 0;
+                if(isCorrect) {
+                    if(target.level < 5) target.level++;
+                    container.classList.add('anim-pop');
+                } else {
+                    if(target.level > 0) target.level--;
+                    // 不正確時播放震動動畫
+                    container.classList.add('anim-shake');
+                    setTimeout(() => container.classList.remove('anim-shake'), 400);
+                }
+            }
+            save();
+
+            currentIndex++;
+            // 延遲載入下一張卡，等待動畫結束
+            setTimeout(loadCard, 400);
+        };
+
+        window.exitReview = () => {
+            reviewView.classList.add('hidden');
+            normalView.classList.remove('hidden');
+            render();
+        };
+
+        // --- 檔案匯入匯出 (使用 Blob 修正行動裝置下載問題) ---
+        window.exportData = () => {
+            const json = JSON.stringify(words, null, 2);
+            const date = new Date().toISOString().slice(0, 10);
+            const filename = `jp_backup_${date}.json`;
+
+            // 🚨 關鍵修正：使用 Blob 物件替代 Data URI，確保 iPhone Chrome 能正常下載。
+            const blob = new Blob([json], { type: 'application/json' });
+            
+            // 建立一個臨時 URL
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            
+            // 觸發下載
+            a.click();
+            
+            // 清理臨時 URL，釋放記憶體
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 100);
+
+            // 給予行動裝置使用者提示
+            alert('備份檔案已嘗試下載，請檢查您的下載項目或檔案 App。');
+        };
+        
+        window.importData = (input) => {
+            const file = input.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    words = JSON.parse(e.target.result);
+                    save();
+                    alert('匯入成功');
+                } catch(err) { alert('格式錯誤'); }
+            };
+            reader.readAsText(file);
+        };
+        
+        // --- 事件監聽器 ---
+        voiceSelect.addEventListener('change', () => {
+            localStorage.setItem('jp_voice', voiceSelect.value);
+            testVoice();
+        });
+
+        document.getElementById('items-per-page').addEventListener('change', (e) => {
+            itemsPerPage = parseInt(e.target.value);
+            currentPage = 1;
+            render();
+        });
+
+        document.getElementById('sort-by').addEventListener('change', (e) => {
+            sortMethod = e.target.value;
+            render();
+        });
+
+        document.getElementById('search').addEventListener('input', () => {
+            currentPage = 1;
+            render();
+        });
+
+        document.getElementById('toggle-file-btn').onclick = () => fileSec.classList.toggle('hidden');
+
+        document.getElementById('add-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const ja = document.getElementById('in-ja').value.trim();
+            const hira = document.getElementById('in-hira').value.trim();
+            const zh = document.getElementById('in-zh').value.trim();
+            const pitch = document.getElementById('in-pitch').value;
+            const lvl = parseInt(document.getElementById('in-level').value);
+
+            if(ja && hira) {
+                words.unshift({
+                    id: Date.now(), ja, hira, zh, pitch, level: lvl
+                });
+                save();
+                e.target.reset();
+                currentPage = 1;
+                render();
+            }
+        });
+
+        document.getElementById('start-review-btn').addEventListener('click', () => {
+            if(words.length === 0) return alert('請先新增單字');
+            
+            // 按照熟悉度（低到高）排序，確保先複習不熟的
+            reviewQueue = [...words].sort((a,b) => (a.level||0) - (b.level||0));
+            currentIndex = 0;
+
+            normalView.classList.add('hidden');
+            fileSec.classList.add('hidden');
+            reviewView.classList.remove('hidden');
+            reviewArea.classList.remove('hidden');
+            reviewDone.classList.add('hidden');
+            quitBtn.classList.remove('hidden');
+            
+            loadCard();
+        });
+
+        flashcard.addEventListener('click', () => {
+            const container = flashcard.parentElement; // 獲取 .flashcard-container
+            
+            // 翻轉卡片
+            if(!container.classList.contains('flipped')) {
+                container.classList.add('flipped');
+                ratingBtns.classList.remove('hidden');
+                const w = reviewQueue[currentIndex];
+                speak(w.ja);
+            }
+        });
+
+        // 修正 Service Worker 註冊，使用相對路徑
+        if('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js', { scope: './' });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadVoices();
+            itemsPerPage = parseInt(document.getElementById('items-per-page').value);
+            sortMethod = document.getElementById('sort-by').value;
+            render();
+        });
+    </script>
 </body>
 </html>
