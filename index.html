@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇯🇵 日文單字本 - WordVault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="manifest" href="/manifest.json">
+    
+    <style>
+        :root {
+            --color-primary: #a0522d; /* 土色/赤褐色 (Brown/Sienna) */
+            --color-secondary: #f0e68c; /* 淺黃/卡其色 (Khaki) */
+            --color-background: #fdf5e6; /* 貝殼白 (Seashell) */
+            --color-text: #36454f; 
+            --color-light-bg: #fffaf0; 
+            --color-shadow: rgba(0, 0, 0, 0.05);
+            --border-radius: 8px;
+        }
+
+        /* --- 全域設定與字體 --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Hiragino Sans', 'Meiryo', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- 標題與行動區 --- */
+        .app-header {
+            background-color: var(--color-light-bg);
+            border: 3px solid var(--color-primary);
+            padding: 15px 25px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px var(--color-shadow);
+        }
+
+        .app-header h1 {
+            font-size: 2em;
+            color: var(--color-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+        }
+
+        .action-btn:hover {
+            background-color: #f7e997;
+        }
+
+        .review-btn {
+            background-color: #ff9999; /* 櫻花色 */
+            color: white;
+            border: 1px solid #ff6666;
+        }
+
+        .review-btn:hover {
+            background-color: #ff6666;
+        }
+
+        /* --- 容器與卡片 (日式和紙風格) --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* 表單/匯入區佔 1/3，列表區佔 2/3 */
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--color-light-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 10px var(--color-shadow);
+            border: 1px solid var(--color-secondary); /* 輕微的邊框 */
+        }
+
+        .form-card {
+            grid-column: 1 / 2;
+            background-color: #ffffff;
+        }
+
+        .list-card {
+            grid-column: 2 / 3;
+        }
+
+        .import-export-card {
+            grid-column: 1 / 3; /* 檔案管理區塊橫跨兩欄 */
+        }
+
+        /* --- 表單樣式 --- */
+        .form-card h3, .list-card h3, .review-card h3 {
+            margin-bottom: 15px;
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-secondary);
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--color-primary);
+            font-size: 0.9em;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: var(--color-primary);
+            outline: none;
+        }
+
+        .half-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .half-item {
+            flex: 1;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #8b4513; /* 深一點的土色 */
+        }
+
+        /* --- 單字清單樣式 (卡片式) --- */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        #search-input {
+            width: 40%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .word-list {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 自適應網格 */
+            gap: 15px;
+        }
+
+        .word-item {
+            background-color: #fff;
+            border: 2px solid var(--color-secondary);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: 2px 2px 5px var(--color-shadow);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.1s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .word-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 10px var(--color-shadow);
+        }
+
+        .word-ja {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 5px;
+        }
+
+        .word-hira {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .word-zh {
+            font-style: italic;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .word-pitch {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #d9534f; /* 紅色，標註聲調的重要性 */
+            background: var(--color-secondary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--color-primary);
+        }
+
+        .item-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+            gap: 5px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .item-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: color 0.1s;
+        }
+
+        .item-actions .speak-btn {
+            color: var(--color-primary);
+        }
+
+        .item-actions .speak-btn:hover {
+            color: #ff9999;
+        }
+
+        .item-actions .delete-btn {
+            color: #d9534f;
+        }
+
+        .item-actions .delete-btn:hover {
+            color: #c9302c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            font-size: 1.1em;
+            color: #aaa;
+            border: 1px dashed var(--color-secondary);
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+        }
+
+        /* --- 匯入/匯出區塊 --- */
+        .import-export-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ie-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .ie-btn {
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            background-color: #e0f7fa; /* 淺藍綠色 */
+            color: #00796b;
+            border: 1px solid #00796b;
+        }
+
+        .ie-btn:hover {
+            background-color: #b2ebf2;
+        }
+
+        .ie-label {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+        }
+
+        #import-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* --- 複習模式樣式 --- */
+        .review-card {
+            grid-column: 1 / 3;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .review-card-container {
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .review-word-card {
+            background-color: #fff;
+            border: 5px solid #ff9999; /* 顯眼的邊框 */
+            border-radius: 15px;
+            width: 80%;
+            max-width: 400px;
+            min-height: 200px;
+            padding: 30px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .review-word-card.flipped {
+            border-color: var(--color-primary);
+        }
+
+        .review-word-card .front-content {
+            font-size: 3em;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .review-word-card .back-content {
+            display: none;
+            font-size: 1.2em;
+            line-height: 1.8;
+        }
+
+        .review-word-card.flipped .front-content {
+            display: none;
+        }
+
+        .review-word-card.flipped .back-content {
+            display: block;
+        }
+
+        .review-word-card .back-content .ans-hira, .review-word-card .back-content .ans-zh {
+            display: block;
+        }
+
+        .review-word-card .back-content .ans-hira {
+            font-size: 1.5em;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .review-word-card .back-content .ans-zh {
+            font-size: 1.2em;
+            color: #333;
+            font-style: normal;
+        }
+
+        .review-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .judgement-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .primary-btn {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background-color: #8b4513;
+        }
+
+        .know-btn {
+            background-color: #5cb85c; /* 綠色 */
+            color: white;
+        }
+
+        .know-btn:hover {
+            background-color: #4cae4c;
+        }
+
+        .dont-know-btn {
+            background-color: #d9534f; /* 紅色 */
+            color: white;
+        }
+
+        .dont-know-btn:hover {
+            background-color: #c9302c;
+        }
+
+        .exit-btn {
+            background-color: #aaa;
+            color: white;
+        }
+
+        /* --- Footer --- */
+        .app-footer {
+            text-align: center;
+            padding: 10px;
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        /* --- RWD 調整 --- */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr; /* 單欄佈局 */
+            }
+
+            .form-card, .list-card, .import-export-card, .review-card {
+                grid-column: 1 / 2;
+            }
+
+            .app-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .list-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #search-input {
+                width: 100%;
+            }
+
+            .word-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <h1>単語帳 **WordVault**</h1>
+        <div class="header-actions">
+            <button id="show-import-export-btn" class="action-btn">📥📤 檔案管理</button>
+            <button id="start-review-btn" class="action-btn review-btn">🧠 開始複習</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="import-export-section" class="card import-export-card hidden">
+            <h3>📂 單字清單匯入/匯出</h3>
+            <div class="ie-group">
+                <button id="export-btn" class="ie-btn">⬇️ 匯出 (.json)</button>
+            </div>
+            <div class="ie-group">
+                <label for="import-file" class="ie-btn ie-label">⬆️ 選擇匯入檔案 (.json)</label>
+                <input type="file" id="import-file" accept=".json" class="hidden">
+                <button id="import-btn" class="ie-btn" disabled>載入清單</button>
+            </div>
+        </section>
+
+        <section class="card form-card">
+            <h3>📝 新增單字</h3>
+            <form id="add-word-form">
+                <div class="form-group">
+                    <label for="word-ja">日文 **(單字)**</label>
+                    <input type="text" id="word-ja" required>
+                </div>
+                <div class="form-group">
+                    <label for="word-hira">平假名/片假名 **(發音)**</label>
+                    <input type="text" id="word-hira" required>
+                </div>
+                <div class="form-group half-group">
+                    <div class="half-item">
+                        <label for="word-zh">中文 **(意思)**</label>
+                        <input type="text" id="word-zh" required>
+                    </div>
+                    <div class="half-item">
+                        <label for="word-pitch">聲調 **(數字)**</label>
+                        <input type="number" id="word-pitch" min="0" value="0">
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">➕ 儲存單字</button>
+            </form>
+        </section>
+
+        <section class="card list-card">
+            <div class="list-header">
+                <h3>📖 我的單字庫 (<span id="word-count">0</span> 個)</h3>
+                <input type="text" id="search-input" placeholder="🔍 搜尋日文/中文">
+            </div>
+            <ul id="word-list" class="word-list">
+                </ul>
+            <p id="empty-state" class="empty-state">目前還沒有單字喔！快新增吧。</p>
+        </section>
+
+        <section id="review-mode-section" class="card review-card hidden">
+            <h3>🧠 複習模式</h3>
+            <div id="review-card-container" class="review-card-container">
+                </div>
+            <div id="review-controls" class="review-controls hidden">
+                <button id="show-answer-btn" class="control-btn primary-btn">顯示答案</button>
+                <div id="judgement-controls" class="judgement-controls hidden">
+                    <button id="know-btn" class="control-btn know-btn">✅ 記得</button>
+                    <button id="dont-know-btn" class="control-btn dont-know-btn">❌ 忘記</button>
+                </div>
+                <button id="exit-review-btn" class="control-btn exit-btn">🔚 結束複習</button>
+            </div>
+            <p id="review-complete-message" class="review-complete-message hidden">太棒了！所有單字都複習完畢！</p>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2025 WordVault 日文單字學習</p>
+    </footer>
+
+    <script>
+        // 全域變數
+        let wordList = [];
+        let reviewList = [];
+        let reviewIndex = 0;
+
+        // --- 介面元素獲取 ---
+        const wordListEl = document.getElementById('word-list');
+        const wordCountEl = document.getElementById('word-count');
+        const emptyStateEl = document.getElementById('empty-state');
+        const addWordForm = document.getElementById('add-word-form');
+        const searchInput = document.getElementById('search-input');
+        const importExportSection = document.getElementById('import-export-section');
+        const showImportExportBtn = document.getElementById('show-import-export-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const importFile = document.getElementById('import-file');
+        const importBtn = document.getElementById('import-btn');
+
+        // 複習模式元素
+        const startReviewBtn = document.getElementById('start-review-btn');
+        const reviewModeSection = document.getElementById('review-mode-section');
+        const reviewCardContainer = document.getElementById('review-card-container');
+        const reviewControls = document.getElementById('review-controls');
+        const showAnswerBtn = document.getElementById('show-answer-btn');
+        const judgementControls = document.getElementById('judgement-controls');
+        const knowBtn = document.getElementById('know-btn');
+        const dontKnowBtn = document.getElementById('dont-know-btn');
+        const exitReviewBtn = document.getElementById('exit-review-btn');
+        const reviewCompleteMessage = document.getElementById('review-complete-message');
+
+        // --- 核心功能函數 ---
+
+        function loadWords() {
+            const storedWords = localStorage.getItem('japaneseWordVault');
+            if (storedWords) {
+                wordList = JSON.parse(storedWords);
+            }
+            renderWordList(wordList);
+        }
+
+        function saveWords() {
+            localStorage.setItem('japaneseWordVault', JSON.stringify(wordList));
+            wordCountEl.textContent = wordList.length;
+            emptyStateEl.style.display = wordList.length === 0 ? 'block' : 'none';
+        }
+
+        function renderWordList(words) {
+            wordListEl.innerHTML = '';
+            
+            if (words.length === 0 && wordList.length > 0) {
+                wordListEl.innerHTML = '<p class="empty-state">找不到符合的單字。</p>';
+                emptyStateEl.style.display = 'none';
+                return;
+            }
+
+            words.forEach(word => {
+                const item = document.createElement('li');
+                item.className = 'word-item';
+                item.dataset.id = word.id;
+                
+                const pitchText = word.pitch !== 0 ? word.pitch : '無';
+
+                item.innerHTML = `
+                    <span class="word-pitch">${pitchText}</span>
+                    <div class="word-ja">${word.ja}</div>
+                    <div class="word-hira">${word.hira}</div>
+                    <div class="word-zh">**中譯:** ${word.zh}</div>
+                    <div class="item-actions">
+                        <button class="speak-btn" aria-label="發音" data-text="${word.ja}">🔊</button>
+                        <button class="delete-btn" aria-label="刪除" data-id="${word.id}">🗑️</button>
+                    </div>
+                `;
+                wordListEl.appendChild(item);
+            });
+            
+            saveWords();
+        }
+
+        function speakJapanese(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                const voices = speechSynthesis.getVoices();
+                const japaneseVoice = voices.find(voice => voice.lang === 'ja-JP');
+                
+                if (japaneseVoice) {
+                    utterance.voice = japaneseVoice;
+                } else {
+                    utterance.lang = 'ja-JP';
+                }
+
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('抱歉，你的瀏覽器不支援發音功能。');
+            }
+        }
+
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = loadWords;
+        }
+
+
+        // --- 事件監聽器 ---
+
+        addWordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newWord = {
+                id: Date.now(),
+                ja: document.getElementById('word-ja').value.trim(),
+                hira: document.getElementById('word-hira').value.trim(),
+                zh: document.getElementById('word-zh').value.trim(),
+                pitch: parseInt(document.getElementById('word-pitch').value, 10) || 0,
+                reviewScore: 0
+            };
+
+            if (newWord.ja && newWord.hira && newWord.zh) {
+                wordList.unshift(newWord);
+                renderWordList(wordList);
+                this.reset();
+            }
+        });
+
+        wordListEl.addEventListener('click', function(e) {
+            const target = e.target;
+            const id = target.dataset.id;
+            
+            if (target.classList.contains('delete-btn')) {
+                if (confirm('確定要刪除這個單字嗎？')) {
+                    wordList = wordList.filter(word => word.id !== parseInt(id));
+                    renderWordList(wordList);
+                }
+            } else if (target.classList.contains('speak-btn')) {
+                const text = target.dataset.text;
+                speakJapanese(text);
+            }
+        });
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            if (query === '') {
+                renderWordList(wordList);
+                return;
+            }
+            
+            const filteredList = wordList.filter(word => 
+                word.ja.toLowerCase().includes(query) || 
+                word.hira.toLowerCase().includes(query) ||
+                word.zh.includes(query)
+            );
+            renderWordList(filteredList);
+        });
+
+        showImportExportBtn.addEventListener('click', () => {
+            importExportSection.classList.toggle('hidden');
+        });
+
+        exportBtn.addEventListener('click', function() {
+            if (wordList.length === 0) {
+                alert('單字庫是空的，無法匯出！');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(wordList, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            const exportFileDefaultName = 'japanese_wordvault_export.json';
+            
+            let linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        });
+
+        importFile.addEventListener('change', function() {
+            importBtn.disabled = this.files.length === 0;
+        });
+
+        importBtn.addEventListener('click', function() {
+            const file = importFile.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedWords = JSON.parse(e.target.result);
+                    if (!Array.isArray(importedWords)) {
+                        throw new Error('檔案格式錯誤，應為 JSON 陣列。');
+                    }
+                    
+                    wordList = importedWords.map(word => ({
+                        id: word.id || Date.now() + Math.random(), 
+                        ja: word.ja || '', 
+                        hira: word.hira || '', 
+                        zh: word.zh || '', 
+                        pitch: parseInt(word.pitch, 10) || 0,
+                        reviewScore: word.reviewScore || 0
+                    }));
+                    
+                    renderWordList(wordList);
+                    alert(`成功匯入 ${wordList.length} 個單字！`);
+                    importFile.value = '';
+                    importBtn.disabled = true;
+                    importExportSection.classList.add('hidden');
+                } catch (error) {
+                    alert('匯入失敗：檔案內容無效或格式錯誤。' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function setupReview() {
+            if (wordList.length === 0) {
+                alert('單字庫是空的，請先新增單字！');
+                return false;
+            }
+            
+            reviewList = [...wordList].sort((a, b) => a.reviewScore - b.reviewScore);
+            reviewIndex = 0;
+            
+            document.querySelector('.list-card').classList.add('hidden');
+            document.querySelector('.form-card').classList.add('hidden');
+            reviewModeSection.classList.remove('hidden');
+            reviewControls.classList.remove('hidden');
+            reviewCompleteMessage.classList.add('hidden');
+            
+            displayNextReviewCard();
+            return true;
+        }
+
+        function displayNextReviewCard() {
+            if (reviewIndex >= reviewList.length) {
+                reviewCardContainer.innerHTML = '';
+                reviewControls.classList.add('hidden');
+                reviewCompleteMessage.classList.remove('hidden');
+                saveWords();
+                return;
+            }
+
+            const currentWord = reviewList[reviewIndex];
+            
+            reviewCardContainer.innerHTML = `
+                <div id="review-word-card" class="review-word-card" data-word="${currentWord.ja}">
+                    <div class="front-content">${currentWord.ja}</div>
+                    <div class="back-content">
+                        <span class="ans-hira">${currentWord.hira} (${currentWord.pitch})</span>
+                        <span class="ans-zh">${currentWord.zh}</span>
+                    </div>
+                    <button class="speak-btn" aria-label="發音" data-text="${currentWord.ja}" style="margin-top: 15px;">🔊</button>
+                </div>
+            `;
+            
+            showAnswerBtn.classList.remove('hidden');
+            judgementControls.classList.add('hidden');
+            document.getElementById('review-word-card').classList.remove('flipped');
+        }
+
+        function handleReviewResult(known) {
+            if (reviewIndex >= reviewList.length) return;
+
+            const wordToUpdate = reviewList[reviewIndex];
+            const originalWord = wordList.find(w => w.id === wordToUpdate.id);
+
+            if (known) {
+                originalWord.reviewScore = Math.min(originalWord.reviewScore + 1, 3);
+            } else {
+                originalWord.reviewScore = 0;
+            }
+
+            reviewIndex++;
+            displayNextReviewCard();
+            saveWords();
+        }
+
+        startReviewBtn.addEventListener('click', setupReview);
+
+        exitReviewBtn.addEventListener('click', function() {
+            reviewModeSection.classList.add('hidden');
+            document.querySelector('.list-card').classList.remove('hidden');
+            document.querySelector('.form-card').classList.remove('hidden');
+            renderWordList(wordList);
+        });
+
+        reviewCardContainer.addEventListener('click', function(e) {
+            const card = document.getElementById('review-word-card');
+            if (e.target.classList.contains('speak-btn')) {
+                speakJapanese(e.target.dataset.text);
+                return;
+            }
+            
+            if (card && !card.classList.contains('flipped')) {
+                card.classList.add('flipped');
+                showAnswerBtn.classList.add('hidden');
+                judgementControls.classList.remove('hidden');
+                speakJapanese(card.dataset.word);
+            }
+        });
+
+        showAnswerBtn.addEventListener('click', function() {
+            const card = document.getElementById('review-word-card');
+            card.classList.add('flipped');
+            showAnswerBtn.classList.add('hidden');
+            judgementControls.classList.remove('hidden');
+            speakJapanese(card.dataset.word);
+        });
+
+        knowBtn.addEventListener('click', () => handleReviewResult(true));
+        dontKnowBtn.addEventListener('click', () => handleReviewResult(false));
+
+
+        // --- 啟動 APP ---
+        document.addEventListener('DOMContentLoaded', loadWords);
+
+        // --- PWA Service Worker 註冊 (實現離線功能，必須放在 JS 尾端) ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker 註冊成功:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker 註冊失敗:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
