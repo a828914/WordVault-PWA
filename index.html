@@ -11,7 +11,7 @@
     
     <style>
         :root {
-            /* 日系極簡配色 (維持不變) */
+            /* 日系極簡配色 */
             --bg-body: #F5F7FA;
             --bg-card: #FFFFFF;
             --color-text: #2c3e50;
@@ -19,7 +19,7 @@
             --color-accent: #e74c3c; 
             --color-border: #ecf0f1;
             
-            /* 等級顏色 (維持不變) */
+            /* 等級顏色 */
             --lvl-0: #e74c3c; 
             --lvl-1: #e67e22; 
             --lvl-2: #f1c40f; 
@@ -43,7 +43,7 @@
             -webkit-tap-highlight-color: transparent; 
         }
         
-        /* 核心防溢出修正：確保沒有任何東西可以推動水平滾動條 */
+        /* 核心防溢出修正 */
         html, body {
             overflow-x: hidden;
             min-width: 320px;
@@ -62,7 +62,7 @@
         
         .hidden { display: none !important; }
 
-        /* --- 動畫定義 (維持不變) --- */
+        /* --- 動畫定義 --- */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -185,7 +185,7 @@
             gap: 15px;
             margin-bottom: 20px;
         }
-        /* 單字卡樣式 (維持不變) */
+        /* 單字卡樣式 */
         .word-card { 
             position: relative; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-sm);
             background: var(--bg-card); transition: all 0.2s ease;
@@ -214,6 +214,129 @@
             margin-top: auto; padding-top: 20px;
         }
         .page-info { color: var(--color-sub); font-size: 0.9rem; }
+        
+        /* --- 複習模式樣式 (Review Mode) --- */
+        .review-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            /* 🔥 最終修正：加入 flex-basis: 100% 確保寬度計算正確，解決 display: flex 導致的塌陷問題 */
+            flex-basis: 100%;
+        }
+
+        .flashcard-container {
+            width: 100%;
+            /* 關鍵：設定容器高度比例，避免塌陷 */
+            padding-top: 66.66%; /* 3:2 比例 */
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .flashcard {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 關鍵：啟用 3D 空間 */
+            transform-style: preserve-3d; 
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: var(--radius);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            /* 關鍵：翻轉時隱藏背面 */
+            backface-visibility: hidden; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 30px;
+        }
+
+        /* 正面 */
+        .front {
+            flex-direction: column;
+        }
+        .front-text {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--color-accent);
+        }
+        .hint-text {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: var(--color-sub);
+        }
+
+        /* 背面 */
+        .back {
+            /* 關鍵：將背面轉到看不見的位置 */
+            transform: rotateY(180deg); 
+        }
+        .back-detail {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .back-hira {
+            font-size: 1.2rem;
+            color: var(--color-sub);
+            margin-bottom: 15px;
+        }
+        .back-info {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        /* 評級按鈕 */
+        .review-actions {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .rating-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-correct {
+            background-color: var(--lvl-3); /* 綠色 */
+        }
+        .btn-correct:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-wrong {
+            background-color: var(--lvl-0); /* 紅色 */
+        }
+        .btn-wrong:hover {
+            background-color: #c0392b;
+        }
+
 
         /* RWD 區塊修正 */
         @media (max-width: 800px) {
@@ -241,6 +364,14 @@
             
             .card {
                 padding: 20px;
+            }
+            
+            /* 確保複習模式在手機上置中 */
+            .review-section {
+                padding: 10px var(--spacing-h);
+            }
+            .front-text {
+                font-size: 3rem;
             }
         }
     </style>
@@ -404,7 +535,7 @@
         const quitBtn = document.getElementById('btn-quit-review');
         const fileSec = document.getElementById('file-section');
 
-        // --- 語音控制 (維持不變) ---
+        // --- 語音控制 ---
         function loadVoices() {
             const voices = speechSynthesis.getVoices();
             voiceSelect.innerHTML = '<option value="">系統預設</option>';
@@ -434,7 +565,7 @@
         }
         window.testVoice = () => { speak('こんにちは'); }
 
-        // --- 資料儲存與渲染 (維持不變) ---
+        // --- 資料儲存與渲染 ---
         function save() {
             localStorage.setItem('jp_words', JSON.stringify(words));
             render();
@@ -496,7 +627,7 @@
             });
         }
 
-        // --- 單字庫操作 (維持不變) ---
+        // --- 單字庫操作 ---
         window.changePage = (delta) => {
             currentPage += delta;
             render();
@@ -596,7 +727,7 @@
             reader.readAsText(file);
         };
         
-        // --- 事件監聽器 (維持不變) ---
+        // --- 事件監聽器 ---
         voiceSelect.addEventListener('change', () => {
             localStorage.setItem('jp_voice', voiceSelect.value);
             testVoice();
@@ -664,7 +795,7 @@
             }
         });
 
-        // 🔥 修正 2: 移除斜線 /，並指定 scope: './' 確保 Service Worker 在子目錄下正確註冊
+        // 修正 Service Worker 註冊，使用相對路徑
         if('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js', { scope: './' });
         }
