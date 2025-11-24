@@ -10,25 +10,31 @@
     
     <style>
         :root {
-            /* 基調：日系空氣感 */
-            --bg-body: #F9FAFB;
+            /* 日系極簡配色 */
+            --bg-body: #F5F7FA;
             --bg-card: #FFFFFF;
-            --color-text: #37474F;
-            --color-sub: #90A4AE;
+            --color-text: #2c3e50;
+            --color-sub: #7f8c8d;
+            --color-accent: #e74c3c; /* 茜色 */
+            --color-border: #ecf0f1;
             
-            /* 等級顏色 (Level Colors) - 柔和系 */
-            --lvl-0: #EF5350; /* 新手 (紅) */
-            --lvl-1: #FF7043; /* 入門 (橘紅) */
-            --lvl-2: #FFA726; /* 學習中 (橘) */
-            --lvl-3: #66BB6A; /* 熟悉 (綠) */
-            --lvl-4: #42A5F5; /* 精通 (藍) */
-            --lvl-5: #FFD700; /* 大師 (金) */
+            /* 等級顏色 */
+            --lvl-0: #e74c3c; /* 紅 */
+            --lvl-1: #e67e22; /* 橘 */
+            --lvl-2: #f1c40f; /* 黃 */
+            --lvl-3: #2ecc71; /* 綠 */
+            --lvl-4: #3498db; /* 藍 */
+            --lvl-5: #9b59b6; /* 紫 */
 
-            --radius: 12px;
-            --shadow: 0 4px 15px rgba(0,0,0,0.03);
+            --radius: 16px;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,0.08);
+            
+            --anim-speed: 0.3s;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
             font-family: 'Noto Sans JP', sans-serif;
             background: var(--bg-body);
@@ -39,9 +45,32 @@
             display: flex;
             flex-direction: column;
         }
+        
         .hidden { display: none !important; }
 
-        /* --- 標題與設定 (無底色) --- */
+        /* --- 動畫定義 --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .anim-fade-in { animation: fadeInUp 0.4s ease-out forwards; }
+        .anim-shake { animation: shake 0.4s ease-in-out; }
+        .anim-pop { animation: pop 0.3s ease-out; }
+
+        /* --- Header --- */
         header {
             max-width: 1000px;
             margin: 0 auto 30px;
@@ -52,268 +81,301 @@
             flex-wrap: wrap;
             gap: 15px;
         }
+        
         h1 {
             margin: 0;
             font-size: 1.8rem;
-            border-left: 4px solid var(--color-text);
-            padding-left: 12px;
-            color: var(--color-text);
-        }
-        .header-controls { display: flex; gap: 10px; }
-        
-        button {
-            cursor: pointer;
-            border: none;
-            outline: none;
-            font-family: inherit;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--color-text);
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: var(--color-text);
-            font-weight: 500;
-            transition: 0.2s;
-        }
-        .btn-outline:hover { background: var(--color-text); color: #fff; }
-
-        .btn-review {
-            background: var(--lvl-0); /* 使用紅色系 */
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: 700;
-            box-shadow: 0 4px 10px rgba(239, 83, 80, 0.3);
-            transition: 0.2s;
-        }
-        .btn-review:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(239, 83, 80, 0.4); }
-
-        /* --- 語音設定區塊 (Settings) --- */
-        .settings-bar {
-            max-width: 1000px;
-            margin: 0 auto 20px;
-            width: 100%;
-            background: #fff;
-            padding: 15px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 0.9rem;
         }
-        select {
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            background: #FAFAFA;
-            flex-grow: 1;
-            font-size: 0.9rem;
+        h1::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 24px;
+            background: var(--color-accent);
+            border-radius: 4px;
         }
 
-        /* --- 主內容 --- */
+        .header-controls { display: flex; gap: 12px; }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: transform 0.1s, box-shadow 0.2s, background 0.2s;
+        }
+        
+        button:active { transform: scale(0.96); }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--color-text);
+            padding: 8px 16px;
+            border-radius: 50px;
+            color: var(--color-text);
+            font-weight: 500;
+        }
+        .btn-ghost:hover { background: var(--color-text); color: #fff; }
+
+        .btn-primary {
+            background: var(--color-accent);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);
+        }
+        .btn-primary:hover { 
+            background: #c0392b; 
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        /* --- 設定與篩選列 --- */
+        .toolbar {
+            max-width: 1000px;
+            margin: 0 auto 20px;
+            width: 100%;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            align-items: center;
+        }
+        
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--color-sub);
+        }
+
+        select, input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: #FAFAFA;
+            font-size: 0.9rem;
+            color: var(--color-text);
+            outline: none;
+        }
+        select:focus, input:focus { border-color: var(--color-accent); background: #fff; }
+
+        /* --- 主容器 --- */
         .container {
             max-width: 1000px;
             margin: 0 auto;
             width: 100%;
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 20px;
+            gap: 25px;
             flex-grow: 1;
         }
 
         .card {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
+            padding: 30px;
+            box-shadow: var(--shadow-sm);
             height: fit-content;
         }
-        
-        h3 { margin: 0 0 20px; font-size: 1.1rem; color: var(--color-sub); }
 
-        /* 左欄：新增單字 */
+        h3 { margin: 0 0 20px; font-size: 1.2rem; color: var(--color-text); font-weight: 700; }
+
+        /* 左欄表單 */
         .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: var(--color-sub); }
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            background: #FAFAFA;
-            font-size: 1rem;
-            transition: 0.2s;
-        }
-        input:focus { border-color: var(--color-sub); background: #fff; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--color-sub); font-weight: 500; }
         
         .row { display: flex; gap: 10px; }
         .col { flex: 1; }
 
-        .btn-add {
+        .btn-block {
             width: 100%;
             background: var(--color-text);
             color: #fff;
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 700;
             margin-top: 10px;
         }
-        .btn-add:hover { opacity: 0.9; }
 
-        /* 右欄：單字列表 */
-        .list-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        /* 右欄列表 */
+        .list-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
         .list-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 15px;
-            list-style: none;
-            padding: 0;
-            margin: 0;
+            margin-bottom: 20px;
         }
 
-        /* 單字卡設計 */
+        /* 單字卡 */
         .word-card {
             background: #fff;
-            border: 1px solid #eee;
-            border-left: 5px solid #ccc; /* 預設邊框顏色 */
-            border-radius: 8px;
-            padding: 15px;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 20px;
             position: relative;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            opacity: 0; /* 為了動畫初始狀態 */
         }
-        .word-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .word-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: transparent;
+        }
 
-        /* 根據等級改變邊框顏色 */
-        .lvl-0 { border-left-color: var(--lvl-0); }
-        .lvl-1 { border-left-color: var(--lvl-1); }
-        .lvl-2 { border-left-color: var(--lvl-2); }
-        .lvl-3 { border-left-color: var(--lvl-3); }
-        .lvl-4 { border-left-color: var(--lvl-4); }
-        .lvl-5 { border-left-color: var(--lvl-5); }
-
-        .wc-ja { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; color: var(--color-text); }
-        .wc-hira { font-size: 0.9rem; color: var(--color-sub); margin-bottom: 8px; }
-        .wc-zh { font-size: 0.9rem; color: #555; padding-top: 8px; border-top: 1px dashed #eee; }
-        
-        .wc-level {
+        /* 等級標籤條 */
+        .word-card::before {
+            content: '';
             position: absolute;
-            top: 10px; right: 10px;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 4px;
+            left: 0; top: 15px; bottom: 15px;
+            width: 4px;
+            border-radius: 0 4px 4px 0;
             background: #eee;
-            color: #666;
+        }
+        .lvl-0::before { background: var(--lvl-0); }
+        .lvl-1::before { background: var(--lvl-1); }
+        .lvl-2::before { background: var(--lvl-2); }
+        .lvl-3::before { background: var(--lvl-3); }
+        .lvl-4::before { background: var(--lvl-4); }
+        .lvl-5::before { background: var(--lvl-5); }
+
+        .wc-content { margin-left: 10px; }
+        .wc-ja { font-size: 1.5rem; font-weight: 700; margin-bottom: 2px; color: var(--color-text); }
+        .wc-hira { font-size: 0.9rem; color: var(--color-accent); margin-bottom: 10px; }
+        .wc-zh { 
+            font-size: 0.9rem; color: var(--color-sub); 
+            padding-top: 10px; border-top: 1px dashed var(--color-border); 
+        }
+
+        .wc-tag {
+            position: absolute; top: 15px; right: 15px;
+            font-size: 0.75rem; background: #F0F2F5; color: var(--color-sub);
+            padding: 2px 8px; border-radius: 4px;
         }
 
         .wc-actions {
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
+            position: absolute; bottom: 15px; right: 15px;
+            display: flex; gap: 5px; opacity: 0; transition: opacity 0.2s;
         }
-        .icon-btn { background: none; font-size: 1.1rem; color: #ccc; transition: 0.2s; }
-        .icon-btn:hover { color: var(--color-text); }
-        .del-btn:hover { color: var(--lvl-0); }
+        .word-card:hover .wc-actions { opacity: 1; }
+        
+        .icon-btn { 
+            background: #F0F2F5; color: var(--color-text); 
+            width: 32px; height: 32px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+        .icon-btn:hover { background: var(--color-text); color: #fff; }
+        .del-btn:hover { background: var(--color-accent); }
 
-        /* --- 複習模式 (翻卡修復) --- */
+        /* 分頁控制 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: auto;
+            padding-top: 20px;
+        }
+        .page-info { color: var(--color-sub); font-size: 0.9rem; }
+
+        /* --- 複習模式 --- */
         .review-section {
             grid-column: 1 / 3;
             text-align: center;
+            padding-top: 20px;
         }
         
         .flashcard-container {
             width: 100%;
-            max-width: 400px;
-            height: 350px; /* 增加高度以容納詳細資訊 */
-            margin: 20px auto;
-            perspective: 1000px; /* 3D 空間 */
+            max-width: 420px;
+            height: 320px;
+            margin: 30px auto;
+            perspective: 1000px;
         }
 
         .flashcard {
             width: 100%;
             height: 100%;
             position: relative;
-            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-            transform-style: preserve-3d; /* 關鍵：保留 3D 子元素 */
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform-style: preserve-3d;
             cursor: pointer;
         }
 
-        .flashcard.flipped {
-            transform: rotateY(180deg);
-        }
+        .flashcard.flipped { transform: rotateY(180deg); }
 
         .front, .back {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden; /* 背面隱藏 */
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             background: #fff;
-            padding: 30px;
-            border: 1px solid #eee;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
-        /* 正面 */
-        .front {
-            z-index: 2;
-            transform: rotateY(0deg);
-        }
-        .front-text { font-size: 3rem; font-weight: 700; color: var(--color-text); }
+        .back { transform: rotateY(180deg); background: #fff; }
 
-        /* 背面：關鍵修正 - 預先旋轉 180 度，這樣翻過來才是正的 */
-        .back {
-            transform: rotateY(180deg);
-            background: #FAFAFA;
-        }
-        
-        /* 背面詳細內容 */
-        .back-detail { width: 100%; text-align: center; }
-        .back-ja { font-size: 2rem; font-weight: 700; color: var(--color-text); margin-bottom: 5px; }
-        .back-hira { font-size: 1.2rem; color: var(--lvl-0); margin-bottom: 15px; }
-        .back-zh { font-size: 1.1rem; color: #555; margin-bottom: 20px; padding-top: 15px; border-top: 1px solid #eee; }
-        .back-pitch { 
-            display: inline-block; background: var(--color-text); color: #fff; 
-            padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 10px;
+        .front-text { font-size: 3.5rem; font-weight: 700; color: var(--color-text); }
+        .hint-text { margin-top: 20px; color: #ccc; font-size: 0.85rem; }
+
+        .back-detail h2 { font-size: 2.5rem; margin: 0 0 5px; color: var(--color-text); }
+        .back-hira { font-size: 1.2rem; color: var(--color-accent); margin-bottom: 15px; }
+        .back-info { 
+            font-size: 1.1rem; color: var(--color-sub); 
+            padding-top: 15px; border-top: 1px solid var(--color-border);
+            width: 80%; margin: 0 auto;
         }
 
-        /* 評分按鈕 */
         .review-actions {
             display: flex;
-            gap: 20px;
+            gap: 30px;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 30px;
         }
-        .circle-btn {
-            width: 60px; height: 60px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.1s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .circle-btn:active { transform: scale(0.9); }
-        .btn-wrong { background: #fff; border: 2px solid var(--lvl-0); color: var(--lvl-0); }
-        .btn-correct { background: #fff; border: 2px solid var(--lvl-3); color: var(--lvl-3); }
-        
-        .btn-wrong:hover { background: var(--lvl-0); color: #fff; }
-        .btn-correct:hover { background: var(--lvl-3); color: #fff; }
 
-        .end-review-btn { margin-top: 30px; color: #999; background: none; text-decoration: underline; font-size: 0.9rem;}
+        .rating-btn {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: #fff;
+            transition: 0.2s;
+        }
+        .btn-wrong { border: 2px solid var(--lvl-0); color: var(--lvl-0); }
+        .btn-correct { border: 2px solid var(--lvl-3); color: var(--lvl-3); }
+        
+        .btn-wrong:hover { background: var(--lvl-0); color: #fff; transform: scale(1.1); }
+        .btn-correct:hover { background: var(--lvl-3); color: #fff; transform: scale(1.1); }
 
         /* RWD */
         @media (max-width: 800px) {
             .container { grid-template-columns: 1fr; }
             header { flex-direction: column; align-items: flex-start; }
-            .header-controls { width: 100%; justify-content: space-between; margin-top: 10px; }
-            .flashcard-container { height: 300px; }
+            .header-controls { width: 100%; justify-content: space-between; margin-top: 15px; }
+            .toolbar { flex-direction: column; align-items: flex-start; }
+            .toolbar-group { width: 100%; justify-content: space-between; }
         }
     </style>
 </head>
@@ -322,25 +384,41 @@
     <header>
         <h1>JP日文單字卡</h1>
         <div class="header-controls">
-            <button class="btn-outline" id="toggle-file-btn">📂 檔案管理</button>
-            <button class="btn-review" id="start-review-btn">🧠 開始複習</button>
+            <button class="btn-ghost" id="toggle-file-btn">📂 檔案</button>
+            <button class="btn-primary" id="start-review-btn">🧠 開始複習</button>
         </div>
     </header>
 
-    <div class="settings-bar">
-        <span>🗣️ 發音來源：</span>
-        <select id="voice-select">
-            <option value="">載入中...</option>
-        </select>
-        <button class="icon-btn" onclick="testVoice()">🔊 測試</button>
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <span>🗣️ 語音：</span>
+            <select id="voice-select" style="min-width: 150px;"></select>
+            <button class="btn-ghost" onclick="testVoice()" style="padding: 4px 10px; font-size: 0.8rem;">測試</button>
+        </div>
+        <div class="toolbar-group">
+            <span>📄 顯示：</span>
+            <select id="items-per-page">
+                <option value="10">10 筆/頁</option>
+                <option value="20">20 筆/頁</option>
+                <option value="30">30 筆/頁</option>
+            </select>
+        </div>
+        <div class="toolbar-group">
+            <span>⇅ 排序：</span>
+            <select id="sort-by">
+                <option value="level_asc">依熟悉度 (低→高)</option>
+                <option value="level_desc">依熟悉度 (高→低)</option>
+                <option value="newest">依新增時間 (新→舊)</option>
+            </select>
+        </div>
     </div>
 
     <main class="container">
         <div id="file-section" class="card hidden" style="grid-column: 1 / -1; margin-bottom: 20px;">
-            <h3>檔案管理</h3>
+            <h3>📦 檔案備份與還原</h3>
             <div class="row">
-                <button class="btn-outline col" onclick="exportData()">⬇️ 匯出備份</button>
-                <button class="btn-outline col" onclick="document.getElementById('file-input').click()">⬆️ 匯入檔案</button>
+                <button class="btn-ghost col" onclick="exportData()">⬇️ 下載備份 (JSON)</button>
+                <button class="btn-ghost col" onclick="document.getElementById('file-input').click()">⬆️ 匯入備份</button>
                 <input type="file" id="file-input" hidden accept=".json" onchange="importData(this)">
             </div>
         </div>
@@ -350,7 +428,7 @@
                 <h3>📝 新增單字</h3>
                 <form id="add-form">
                     <div class="input-group">
-                        <label>日文單字</label>
+                        <label>日文</label>
                         <input type="text" id="in-ja" required placeholder="例：猫">
                     </div>
                     <div class="input-group">
@@ -359,107 +437,116 @@
                     </div>
                     <div class="row input-group">
                         <div class="col">
-                            <label>中文意思</label>
-                            <input type="text" id="in-zh" required placeholder="例：貓">
+                            <label>中文</label>
+                            <input type="text" id="in-zh" required placeholder="意思">
                         </div>
                         <div class="col">
-                            <label>聲調 (0-5)</label>
+                            <label>聲調</label>
                             <input type="number" id="in-pitch" value="0" min="0">
                         </div>
                     </div>
                     <div class="input-group">
-                        <label>初始熟悉度 (0:陌生 - 5:大師)</label>
-                        <select id="in-level" style="width:100%; padding:10px; border-radius:8px; border:1px solid #eee;">
-                            <option value="0">Lv.0 陌生 (紅)</option>
-                            <option value="1">Lv.1 入門 (橘紅)</option>
-                            <option value="2">Lv.2 學習 (橘)</option>
-                            <option value="3">Lv.3 熟悉 (綠)</option>
-                            <option value="4">Lv.4 精通 (藍)</option>
-                            <option value="5">Lv.5 大師 (金)</option>
+                        <label>初始熟悉度</label>
+                        <select id="in-level" style="width:100%; padding:10px; border-radius:8px;">
+                            <option value="0">Lv.0 陌生 🔴</option>
+                            <option value="1">Lv.1 入門 🟠</option>
+                            <option value="2">Lv.2 學習 🟡</option>
+                            <option value="3">Lv.3 熟悉 🟢</option>
+                            <option value="4">Lv.4 精通 🔵</option>
+                            <option value="5">Lv.5 大師 🟣</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-add">加入單字</button>
+                    <button type="submit" class="btn-block">加入單字庫</button>
                 </form>
             </section>
 
             <section>
-                <div class="list-header">
-                    <h3 style="margin:0">單字庫 (<span id="count">0</span>)</h3>
-                    <input type="text" id="search" placeholder="🔍 搜尋..." style="width: 150px; padding: 5px 10px; font-size: 0.9rem;">
+                <div class="list-header-row">
+                    <h3>單字庫 (<span id="total-count">0</span>)</h3>
+                    <input type="text" id="search" placeholder="🔍 搜尋單字...">
                 </div>
+                
                 <div id="word-grid" class="list-grid">
                     </div>
+
+                <div class="pagination">
+                    <button class="btn-ghost" onclick="changePage(-1)">◀︎</button>
+                    <span class="page-info">第 <span id="curr-page">1</span> / <span id="total-page">1</span> 頁</span>
+                    <button class="btn-ghost" onclick="changePage(1)">▶︎</button>
+                </div>
             </section>
         </div>
 
         <section id="review-view" class="review-section hidden">
-            <h3>記憶複習中</h3>
+            <h3 style="margin-bottom: 0;">🧠 記憶複習中</h3>
+            <p style="color:#aaa; font-size:0.9rem; margin-bottom: 20px;">剩餘 <span id="review-left">0</span> 張卡片</p>
+            
             <div id="review-area">
                 <div class="flashcard-container">
                     <div class="flashcard" id="flashcard">
                         <div class="front">
                             <div class="front-text" id="rev-front">?</div>
-                            <div style="margin-top:20px; color:#999; font-size:0.9rem;">點擊翻牌</div>
+                            <div class="hint-text">點擊卡片翻看答案</div>
                         </div>
                         <div class="back">
                             <div class="back-detail">
-                                <span class="back-pitch" id="rev-pitch">0</span>
-                                <div class="back-ja" id="rev-ja">単語</div>
+                                <span class="wc-tag" style="position:static; display:inline-block; margin-bottom:10px;">聲調 <span id="rev-pitch">0</span></span>
+                                <h2 id="rev-ja">単語</h2>
                                 <div class="back-hira" id="rev-hira">たんご</div>
-                                <div class="back-zh" id="rev-zh">中文意思</div>
-                                <button class="icon-btn" style="color:var(--color-text); font-size:1.5rem; margin-top:10px;" id="rev-speak-btn">🔊</button>
+                                <div class="back-info" id="rev-zh">中文意思</div>
+                                <button class="icon-btn" style="margin: 20px auto 0; width:50px; height:50px; font-size:1.5rem;" id="rev-speak-btn">🔊</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div id="rating-btns" class="review-actions hidden">
-                    <button class="circle-btn btn-wrong" onclick="rateWord(false)">❌</button>
-                    <button class="circle-btn btn-correct" onclick="rateWord(true)">⭕️</button>
+                    <button class="rating-btn btn-wrong" onclick="rateWord(false)">✕</button>
+                    <button class="rating-btn btn-correct" onclick="rateWord(true)">◯</button>
                 </div>
             </div>
             
-            <div id="review-done" class="hidden">
-                <h2>🎉 複習完成！</h2>
-                <p>今天也進步了一點點呢。</p>
+            <div id="review-done" class="hidden" style="padding: 50px;">
+                <div style="font-size: 4rem;">🎉</div>
+                <h2>複習完成！</h2>
+                <p>不熟的單字已經自動為您重新排序。</p>
+                <button class="btn-primary" onclick="exitReview()" style="margin-top:20px;">返回列表</button>
             </div>
-
-            <button class="end-review-btn" onclick="exitReview()">結束複習</button>
+            
+            <button class="btn-ghost" onclick="exitReview()" style="margin-top:40px;" id="btn-quit-review">結束複習</button>
         </section>
 
     </main>
 
     <script>
-        // --- 1. 資料與初始化 ---
+        // --- 全域變數 ---
         let words = JSON.parse(localStorage.getItem('jp_words')) || [];
         let reviewQueue = [];
-        let currentReviewIndex = 0;
-        let selectedVoice = null;
-
-        // --- 2. 語音系統 (Web Speech API) ---
-        const voiceSelect = document.getElementById('voice-select');
+        let currentIndex = 0;
         
+        // 分頁與排序
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let sortMethod = 'level_asc'; // 預設：不熟的在前
+
+        // --- 1. 語音與初始化 ---
+        const voiceSelect = document.getElementById('voice-select');
         function loadVoices() {
             const voices = speechSynthesis.getVoices();
-            voiceSelect.innerHTML = '<option value="">預設語音</option>';
-            
-            // 優先過濾出日文，或者 Google 的語音
-            voices.forEach(voice => {
-                if (voice.lang.includes('ja') || voice.name.includes('Google')) {
-                    const option = document.createElement('option');
-                    option.value = voice.name;
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    voiceSelect.appendChild(option);
+            voiceSelect.innerHTML = '<option value="">系統預設</option>';
+            voices.forEach(v => {
+                if(v.lang.includes('ja') || v.name.includes('Google')) {
+                    const opt = document.createElement('option');
+                    opt.value = v.name;
+                    opt.textContent = v.name;
+                    voiceSelect.appendChild(opt);
                 }
             });
-
-            // 讀取上次存的設定
-            const savedVoice = localStorage.getItem('jp_voice');
-            if (savedVoice) voiceSelect.value = savedVoice;
+            const saved = localStorage.getItem('jp_voice');
+            if(saved) voiceSelect.value = saved;
         }
-
         speechSynthesis.onvoiceschanged = loadVoices;
-        loadVoices(); // 立即嘗試執行一次
+        loadVoices();
 
         voiceSelect.addEventListener('change', () => {
             localStorage.setItem('jp_voice', voiceSelect.value);
@@ -467,52 +554,75 @@
         });
 
         function speak(text) {
-            if (!text) return;
-            speechSynthesis.cancel(); // 停止上一句
+            speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(text);
             u.lang = 'ja-JP';
-            u.rate = 0.9;
-            
-            const chosenName = voiceSelect.value;
-            if (chosenName) {
-                const v = speechSynthesis.getVoices().find(v => v.name === chosenName);
-                if (v) u.voice = v;
+            const vName = voiceSelect.value;
+            if(vName) {
+                const v = speechSynthesis.getVoices().find(x => x.name === vName);
+                if(v) u.voice = v;
             }
             speechSynthesis.speak(u);
         }
-
         function testVoice() { speak('こんにちは'); }
 
-        // --- 3. 核心邏輯 ---
+        // --- 2. 核心渲染 (含分頁與排序) ---
         function save() {
             localStorage.setItem('jp_words', JSON.stringify(words));
             render();
         }
 
+        function getSortedWords() {
+            let list = [...words];
+            // 排序邏輯
+            if(sortMethod === 'level_asc') {
+                list.sort((a,b) => (a.level||0) - (b.level||0) || b.id - a.id);
+            } else if(sortMethod === 'level_desc') {
+                list.sort((a,b) => (b.level||0) - (a.level||0) || b.id - a.id);
+            } else if(sortMethod === 'newest') {
+                list.sort((a,b) => b.id - a.id);
+            }
+            return list;
+        }
+
         function render() {
             const grid = document.getElementById('word-grid');
-            const count = document.getElementById('count');
-            const search = document.getElementById('search').value.toLowerCase();
+            const term = document.getElementById('search').value.toLowerCase();
             
-            grid.innerHTML = '';
-            
-            // 搜尋過濾
-            const filtered = words.filter(w => 
-                w.ja.includes(search) || w.hira.includes(search) || w.zh.includes(search)
+            // 1. 搜尋
+            let filtered = getSortedWords().filter(w => 
+                w.ja.includes(term) || w.hira.includes(term) || w.zh.includes(term)
             );
-            count.textContent = filtered.length;
+            
+            document.getElementById('total-count').textContent = filtered.length;
 
-            filtered.forEach(w => {
+            // 2. 分頁計算
+            const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+            if(currentPage > totalPages) currentPage = totalPages;
+            if(currentPage < 1) currentPage = 1;
+            
+            document.getElementById('curr-page').textContent = currentPage;
+            document.getElementById('total-page').textContent = totalPages;
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageItems = filtered.slice(start, end);
+
+            // 3. 渲染卡片
+            grid.innerHTML = '';
+            pageItems.forEach((w, idx) => {
                 const el = document.createElement('div');
-                // 根據等級加入 CSS Class (lvl-0 ~ lvl-5)
-                const level = w.level !== undefined ? w.level : 0;
-                el.className = `word-card lvl-${level}`;
-                
+                const lvl = w.level || 0;
+                el.className = `word-card lvl-${lvl} anim-fade-in`;
+                el.style.animationDelay = `${idx * 0.05}s`; // 瀑布流特效
+
                 el.innerHTML = `
-                    <div class="wc-level" style="color:var(--lvl-${level})">Lv.${level}</div>
-                    <div class="wc-ja">${w.ja}</div>
-                    <div class="wc-hira">${w.hira} (${w.pitch})</div>
-                    <div class="wc-zh">${w.zh}</div>
+                    <div class="wc-content">
+                        <div class="wc-ja">${w.ja}</div>
+                        <div class="wc-hira">${w.hira}</div>
+                        <div class="wc-zh">${w.zh}</div>
+                    </div>
+                    <span class="wc-tag">Lv.${lvl}</span>
                     <div class="wc-actions">
                         <button class="icon-btn" onclick="speak('${w.ja}')">🔊</button>
                         <button class="icon-btn del-btn" onclick="delWord(${w.id})">🗑️</button>
@@ -522,6 +632,37 @@
             });
         }
 
+        // --- 3. UI 控制事件 ---
+        
+        // 分頁
+        window.changePage = (delta) => {
+            currentPage += delta;
+            render();
+            // 切頁時自動滾動到列表頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // 顯示設定變更
+        document.getElementById('items-per-page').addEventListener('change', (e) => {
+            itemsPerPage = parseInt(e.target.value);
+            currentPage = 1; // 重置回第一頁
+            render();
+        });
+
+        document.getElementById('sort-by').addEventListener('change', (e) => {
+            sortMethod = e.target.value;
+            render();
+        });
+
+        document.getElementById('search').addEventListener('input', () => {
+            currentPage = 1;
+            render();
+        });
+
+        // 檔案區
+        const fileSec = document.getElementById('file-section');
+        document.getElementById('toggle-file-btn').onclick = () => fileSec.classList.toggle('hidden');
+
         // --- 4. 新增與刪除 ---
         document.getElementById('add-form').addEventListener('submit', e => {
             e.preventDefault();
@@ -529,158 +670,150 @@
             const hira = document.getElementById('in-hira').value.trim();
             const zh = document.getElementById('in-zh').value.trim();
             const pitch = document.getElementById('in-pitch').value;
-            const level = parseInt(document.getElementById('in-level').value);
+            const lvl = parseInt(document.getElementById('in-level').value);
 
-            if (ja && hira) {
+            if(ja && hira) {
                 words.unshift({
-                    id: Date.now(),
-                    ja, hira, zh, pitch, 
-                    level: level // 儲存等級
+                    id: Date.now(), ja, hira, zh, pitch, level: lvl
                 });
                 save();
                 e.target.reset();
-                // 重置下拉選單回 0
-                document.getElementById('in-level').value = "0";
+                // 新增後自動切回預設排序(新→舊)或維持當前，此處維持當前但重置頁碼
+                currentPage = 1;
+                render();
             }
         });
 
         window.delWord = (id) => {
-            if (confirm('確定刪除?')) {
+            if(confirm('刪除此單字?')) {
                 words = words.filter(w => w.id !== id);
                 save();
             }
         };
 
-        document.getElementById('search').addEventListener('input', render);
-
-        // --- 5. 複習系統 (翻卡 + 評分) ---
+        // --- 5. 複習模式 (含特效與排序) ---
         const reviewView = document.getElementById('review-view');
         const normalView = document.getElementById('normal-view');
         const flashcard = document.getElementById('flashcard');
         const ratingBtns = document.getElementById('rating-btns');
         const reviewArea = document.getElementById('review-area');
         const reviewDone = document.getElementById('review-done');
+        const quitBtn = document.getElementById('btn-quit-review');
 
-        // 開始複習
         document.getElementById('start-review-btn').addEventListener('click', () => {
-            if (words.length === 0) return alert('請先新增單字');
+            if(words.length === 0) return alert('請先新增單字');
             
-            // 簡單演算法：優先複習等級低的 (升序排列)
-            reviewQueue = [...words].sort((a, b) => (a.level || 0) - (b.level || 0));
-            currentReviewIndex = 0;
+            // 複習邏輯：優先複習 Lv 低的 (強制升序)
+            reviewQueue = [...words].sort((a,b) => (a.level||0) - (b.level||0));
+            currentIndex = 0;
 
             normalView.classList.add('hidden');
-            document.getElementById('file-section').classList.add('hidden');
+            fileSec.classList.add('hidden');
             reviewView.classList.remove('hidden');
             reviewArea.classList.remove('hidden');
             reviewDone.classList.add('hidden');
+            quitBtn.classList.remove('hidden');
             
             loadCard();
         });
 
         function loadCard() {
-            if (currentReviewIndex >= reviewQueue.length) {
-                // 複習結束
+            if(currentIndex >= reviewQueue.length) {
                 reviewArea.classList.add('hidden');
                 reviewDone.classList.remove('hidden');
+                quitBtn.classList.add('hidden');
                 return;
             }
 
-            // 重置卡片狀態
+            // 重置卡片
             flashcard.classList.remove('flipped');
-            ratingBtns.classList.add('hidden'); // 隱藏評分按鈕
-
-            const w = reviewQueue[currentReviewIndex];
+            ratingBtns.classList.add('hidden');
             
-            // 填入正面
+            // 進場動畫
+            flashcard.classList.remove('anim-pop');
+            void flashcard.offsetWidth; // trigger reflow
+            flashcard.classList.add('anim-pop');
+
+            const w = reviewQueue[currentIndex];
+            document.getElementById('review-left').textContent = reviewQueue.length - currentIndex;
+
+            // 填資料
             document.getElementById('rev-front').textContent = w.ja;
             
-            // 填入背面詳細資料
             document.getElementById('rev-ja').textContent = w.ja;
             document.getElementById('rev-hira').textContent = w.hira;
             document.getElementById('rev-zh').textContent = w.zh;
-            document.getElementById('rev-pitch').textContent = `聲調 ${w.pitch}`;
-            
-            // 綁定背面發音按鈕
+            document.getElementById('rev-pitch').textContent = w.pitch;
+
             document.getElementById('rev-speak-btn').onclick = (e) => {
-                e.stopPropagation(); // 防止點按鈕時又翻面
+                e.stopPropagation();
                 speak(w.ja);
             };
         }
 
-        // 點擊翻牌
         flashcard.addEventListener('click', () => {
-            if (!flashcard.classList.contains('flipped')) {
+            if(!flashcard.classList.contains('flipped')) {
                 flashcard.classList.add('flipped');
-                ratingBtns.classList.remove('hidden'); // 顯示評分按鈕
-                // 自動發音 (可選)
-                const w = reviewQueue[currentReviewIndex];
+                ratingBtns.classList.remove('hidden');
+                const w = reviewQueue[currentIndex];
                 speak(w.ja);
             }
         });
 
-        // 評分邏輯
         window.rateWord = (isCorrect) => {
-            const w = reviewQueue[currentReviewIndex];
-            // 在主陣列中找到原始物件
-            const target = words.find(item => item.id === w.id);
+            const w = reviewQueue[currentIndex];
+            const target = words.find(x => x.id === w.id);
             
-            if (target) {
-                if (target.level === undefined) target.level = 0;
-
-                if (isCorrect) {
-                    // 答對：升一級 (最高 5)
-                    if (target.level < 5) target.level++;
+            if(target) {
+                target.level = target.level || 0;
+                if(isCorrect) {
+                    if(target.level < 5) target.level++;
+                    // 答對特效：卡片稍微彈跳
+                    flashcard.classList.add('anim-pop');
                 } else {
-                    // 答錯：降一級 (最低 0)
-                    if (target.level > 0) target.level--;
+                    if(target.level > 0) target.level--;
+                    // 答錯特效：卡片搖晃
+                    flashcard.classList.add('anim-shake');
+                    setTimeout(() => flashcard.classList.remove('anim-shake'), 400);
                 }
             }
             save(); // 儲存等級變更
 
-            // 下一張
-            currentReviewIndex++;
-            setTimeout(loadCard, 300); // 稍微延遲讓動畫順暢
+            currentIndex++;
+            setTimeout(loadCard, 400); // 延遲換卡
         };
 
         window.exitReview = () => {
             reviewView.classList.add('hidden');
             normalView.classList.remove('hidden');
-            render(); // 更新列表顯示新等級
+            // 結束後，如果目前的排序設定是「依熟悉度」，列表會自動更新，讓不熟的排前面
+            render();
         };
 
-        // --- 6. 檔案管理 ---
-        const fileSec = document.getElementById('file-section');
-        document.getElementById('toggle-file-btn').onclick = () => fileSec.classList.toggle('hidden');
-
+        // --- 檔案匯入匯出 ---
         window.exportData = () => {
-            const blob = new Blob([JSON.stringify(words, null, 2)], {type: 'application/json'});
+            const blob = new Blob([JSON.stringify(words,null,2)], {type:'application/json'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `jp_backup_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
         };
-
         window.importData = (input) => {
             const file = input.files[0];
-            if (!file) return;
+            if(!file) return;
             const reader = new FileReader();
             reader.onload = e => {
                 try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data)) {
-                        words = data;
-                        save();
-                        alert('匯入成功！');
-                        fileSec.classList.add('hidden');
-                    }
-                } catch(err) { alert('檔案格式錯誤'); }
+                    words = JSON.parse(e.target.result);
+                    save();
+                    alert('匯入成功');
+                } catch(err) { alert('格式錯誤'); }
             };
             reader.readAsText(file);
         };
-
-        // 初始渲染
-        render();
+        
+        // PWA
+        if('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js');
     </script>
 </body>
 </html>
