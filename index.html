@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🇯🇵 JP日文單字卡</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <link rel="manifest" href="/manifest.json">
     
     <style>
         :root {
-            /* 調整為更具日式風格的顏色 */
-            --color-primary: #5d4037; /* 深棕/咖啡色 (茶色) */
-            --color-secondary: #ffcdd2; /* 淺櫻花粉 (桜色) */
-            --color-background: #fff8e1; /* 象牙白/和紙色 (生成色) */
-            --color-text: #3e2723; /* 深木炭色 */
-            --color-light-bg: #ffffff; 
-            --color-shadow: rgba(0, 0, 0, 0.08);
-            --border-radius: 10px;
+            /* 調整為更符合參考圖的現代、高對比日式配色 */
+            --color-dark-blue: #1A2E44; /* 深藍色，作為主要背景 */
+            --color-red: #D82F3B;      /* 鮮紅色，強調色 (如日本國旗的紅日) */
+            --color-white: #FFFFFF;    /* 純白色，主要文字和前景元素 */
+            --color-light-gray: #B0BEC5; /* 淺灰色，次要文字或邊框 */
+            --color-accent-light: #FFEBEE; /* 淺紅/粉色，微弱提示或背景 */
+            --border-radius: 12px;
+            --spacing-unit: 16px;
         }
 
         /* --- 全域設定與字體 --- */
@@ -28,11 +29,14 @@
         }
 
         body {
-            font-family: 'Noto Sans JP', 'Hiragino Sans', 'Meiryo', sans-serif;
-            background-color: var(--color-background);
-            color: var(--color-text);
+            font-family: 'Noto Sans JP', sans-serif; /* 使用 Noto Sans JP，可讀性高 */
+            background-color: var(--color-dark-blue);
+            color: var(--color-white);
             line-height: 1.6;
-            padding: 20px;
+            padding: var(--spacing-unit) * 2; /* 32px 邊距 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .hidden {
@@ -41,70 +45,72 @@
 
         /* --- 標題與行動區 --- */
         .app-header {
-            background-color: var(--color-light-bg);
-            /* 使用陰影模擬捲軸質感 */
-            border-bottom: 5px solid var(--color-primary); 
-            padding: 15px 25px;
-            margin-bottom: 25px;
-            border-radius: var(--border-radius);
+            background-color: var(--color-dark-blue); /* 背景與 body 相同，形成整體感 */
+            padding: var(--spacing-unit) 0; /* 上下邊距，左右無 */
+            margin-bottom: var(--spacing-unit) * 2;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 6px 15px var(--color-shadow);
         }
 
         .app-header h1 {
-            font-size: 2.2em;
-            color: var(--color-primary);
-            font-weight: 700; /* 更粗的字體強調 */
+            font-size: 2.5em; /* 放大標題 */
+            font-weight: 700;
+            color: var(--color-white); /* 白色標題 */
+            letter-spacing: 2px; /* 增加字距 */
         }
 
         .header-actions {
             display: flex;
-            gap: 15px;
+            gap: var(--spacing-unit);
         }
 
         .action-btn {
-            padding: 12px 18px;
-            border: 2px solid var(--color-primary);
-            border-radius: 5px;
+            padding: var(--spacing-unit) * 0.75 var(--spacing-unit) * 1.25; /* 12px 20px */
+            border: 2px solid var(--color-red); /* 鮮紅色邊框 */
+            border-radius: var(--border-radius);
             cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s, transform 0.1s;
-            background-color: var(--color-secondary); /* 櫻花粉背景 */
-            color: var(--color-primary);
+            font-weight: 500; /* 中等字重 */
+            transition: background-color 0.2s, color 0.2s, transform 0.1s;
+            background-color: transparent; /* 透明背景 */
+            color: var(--color-white); /* 白色文字 */
+            font-size: 0.95em;
+            text-transform: uppercase; /* 大寫，增加現代感 */
         }
 
         .action-btn:hover {
-            background-color: #ffb7b7; /* 深一點的櫻花粉 */
-            transform: translateY(-1px);
+            background-color: var(--color-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .review-btn {
-            background-color: #d84315; /* 紅色系，更醒目 */
-            color: white;
-            border: 2px solid #b71c1c;
+            background-color: var(--color-red); /* 複習按鈕直接用紅色背景 */
+            color: var(--color-white);
         }
 
         .review-btn:hover {
-            background-color: #c2370c;
+            background-color: #A9232B; /* 深一點的紅 */
         }
 
-        /* --- 容器與卡片 (日式和紙風格) --- */
+        /* --- 容器與卡片 --- */
         .container {
-            max-width: 1200px;
+            max-width: 1280px; /* 稍寬一點 */
             margin: 0 auto;
             display: grid;
             grid-template-columns: 1fr 2fr; 
-            gap: 30px; /* 增加間距 */
+            gap: var(--spacing-unit) * 2;
+            flex-grow: 1; /* 讓容器佔滿可用空間 */
         }
 
         .card {
-            background-color: var(--color-light-bg);
-            padding: 30px;
+            background-color: var(--color-white); /* 白色卡片背景 */
+            padding: var(--spacing-unit) * 2;
             border-radius: var(--border-radius);
-            box-shadow: 0 4px 10px var(--color-shadow);
-            border: 1px solid #e0e0e0; 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* 較明顯的陰影 */
+            color: var(--color-dark-blue); /* 卡片內部文字為深藍色 */
+            display: flex;
+            flex-direction: column;
         }
 
         .form-card {
@@ -119,68 +125,70 @@
             grid-column: 1 / 3; 
         }
 
-        /* --- 表單樣式 --- */
+        /* --- 卡片標題 --- */
         .form-card h3, .list-card h3, .review-card h3 {
-            margin-bottom: 20px;
-            color: var(--color-primary);
-            border-bottom: 3px solid var(--color-secondary); /* 櫻花粉底線 */
-            padding-bottom: 8px;
-            font-size: 1.5em;
+            margin-bottom: var(--spacing-unit) * 1.5; /* 24px */
+            color: var(--color-dark-blue);
+            font-size: 1.8em; /* 放大標題 */
+            font-weight: 700;
+            border-bottom: 2px solid var(--color-light-gray); /* 淺灰底線 */
+            padding-bottom: var(--spacing-unit) * 0.5;
         }
 
+        /* --- 表單樣式 --- */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: var(--spacing-unit);
         }
 
         .form-group label {
             display: block;
-            font-weight: bold;
-            margin-bottom: 6px;
-            color: var(--color-primary);
-            font-size: 1em;
+            font-weight: 500;
+            margin-bottom: var(--spacing-unit) * 0.5;
+            color: var(--color-dark-blue);
+            font-size: 0.9em;
         }
 
         input[type="text"], input[type="number"] {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: var(--spacing-unit) * 0.75;
+            border: 1px solid var(--color-light-gray);
+            border-radius: var(--border-radius) * 0.5; /* 圓角減半 */
             font-size: 1em;
             font-family: inherit;
-            transition: border-color 0.2s;
-            background-color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: var(--color-white);
+            color: var(--color-dark-blue);
         }
 
         input[type="text"]:focus, input[type="number"]:focus {
-            border-color: var(--color-primary);
-            box-shadow: 0 0 5px rgba(93, 64, 55, 0.2);
+            border-color: var(--color-red); /* 焦點時邊框變紅 */
+            box-shadow: 0 0 0 3px rgba(216, 47, 59, 0.2); /* 紅色光暈 */
             outline: none;
         }
 
         .half-group {
             display: flex;
-            gap: 15px;
-        }
-
-        .half-item {
-            flex: 1;
+            gap: var(--spacing-unit);
         }
 
         .submit-btn {
             width: 100%;
-            padding: 14px;
-            background-color: var(--color-primary);
-            color: white;
+            padding: var(--spacing-unit);
+            background-color: var(--color-red);
+            color: var(--color-white);
             border: none;
-            border-radius: 5px;
+            border-radius: var(--border-radius) * 0.5;
             cursor: pointer;
-            font-size: 1.2em;
-            font-weight: bold;
-            transition: background-color 0.2s;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: var(--spacing-unit);
         }
 
         .submit-btn:hover {
-            background-color: #4e342e; /* 深一點的棕色 */
+            background-color: #A9232B; /* 深一點的紅 */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         /* --- 單字清單樣式 (卡片式) --- */
@@ -188,212 +196,397 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-unit) * 1.5;
         }
 
         #search-input {
             width: 45%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: var(--spacing-unit) * 0.6;
+            border: 1px solid var(--color-light-gray);
+            border-radius: var(--border-radius) * 0.5;
+            font-size: 0.9em;
+            color: var(--color-dark-blue);
+            background-color: var(--color-white);
         }
 
         .word-list {
             list-style: none;
             padding: 0;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: var(--spacing-unit);
+            flex-grow: 1; /* 讓列表佔滿卡片剩餘空間 */
         }
 
         .word-item {
-            background-color: #fff;
-            border: 3px solid var(--color-secondary); /* 櫻花粉邊框 */
+            background-color: var(--color-white);
+            border: 1px solid var(--color-light-gray); /* 柔和邊框 */
             border-radius: var(--border-radius);
-            padding: 20px;
-            box-shadow: 3px 3px 8px var(--color-shadow);
+            padding: var(--spacing-unit) * 1.25; /* 20px */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* 輕微陰影 */
             display: flex;
             flex-direction: column;
-            transition: transform 0.1s;
+            transition: transform 0.1s, box-shadow 0.2s;
             position: relative;
             overflow: hidden;
         }
 
         .word-item:hover {
             transform: translateY(-3px);
-            box-shadow: 5px 5px 12px var(--color-shadow);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
         }
 
         .word-ja {
-            font-size: 2em;
+            font-size: 2.2em; /* 放大日文 */
             font-weight: 700;
-            color: var(--color-primary);
-            margin-bottom: 8px;
+            color: var(--color-red); /* 日文用紅色強調 */
+            margin-bottom: var(--spacing-unit) * 0.5;
         }
 
         .word-hira {
             font-size: 1.2em;
-            color: #795548; /* 柔和的棕色 */
-            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--color-dark-blue);
+            margin-bottom: var(--spacing-unit) * 0.5;
         }
 
         .word-zh {
-            font-style: italic;
-            color: #9e9e9e;
-            margin-top: 5px;
+            font-style: normal; /* 移除斜體 */
+            color: var(--color-light-gray);
+            margin-top: var(--spacing-unit) * 0.5;
+            font-size: 0.9em;
         }
 
         .word-pitch {
             position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #e57373; /* 柔和的紅色 */
-            background: #fff3e0;
+            top: var(--spacing-unit) * 0.75;
+            right: var(--spacing-unit);
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--color-white);
+            background: var(--color-dark-blue); /* 深藍背景 */
             padding: 4px 8px;
             border-radius: 6px;
-            border: 1px solid #d84315;
+            border: 1px solid var(--color-red); /* 紅色邊框 */
         }
 
         .item-actions {
             display: flex;
             justify-content: flex-end;
-            margin-top: 15px;
-            gap: 10px;
-            border-top: 1px solid #f5f5f5;
-            padding-top: 10px;
+            margin-top: var(--spacing-unit);
+            gap: var(--spacing-unit) * 0.75;
+            border-top: 1px solid #ECEFF1; /* 淺分隔線 */
+            padding-top: var(--spacing-unit) * 0.75;
         }
 
         .item-actions button {
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 1.4em;
+            font-size: 1.5em;
             transition: color 0.1s;
         }
 
         .item-actions .speak-btn {
-            color: var(--color-primary);
+            color: var(--color-dark-blue);
         }
 
         .item-actions .speak-btn:hover {
-            color: #ff9999;
+            color: var(--color-red);
         }
 
         .item-actions .delete-btn {
-            color: #d32f2f;
+            color: #EF5350; /* 柔和紅 */
         }
 
         .item-actions .delete-btn:hover {
-            color: #b71c1c;
+            color: #D32F2F;
         }
 
         .empty-state {
             text-align: center;
-            padding: 50px 0;
+            padding: var(--spacing-unit) * 3 0;
             font-size: 1.2em;
-            color: #bdbdbd;
-            border: 2px dashed var(--color-secondary);
+            color: var(--color-light-gray);
+            border: 2px dashed var(--color-light-gray);
             border-radius: var(--border-radius);
-            margin-top: 20px;
+            margin-top: var(--spacing-unit) * 2;
         }
 
         /* --- 匯入/匯出區塊 --- */
         .ie-group {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: var(--spacing-unit);
+            margin-bottom: var(--spacing-unit);
         }
 
         .ie-btn {
-            padding: 12px 20px;
-            border-radius: 6px;
+            padding: var(--spacing-unit) * 0.75 var(--spacing-unit) * 1.25;
+            border-radius: var(--border-radius) * 0.5;
             cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s;
-            background-color: #e3f2fd; /* 淺藍色 */
-            color: #1976d2;
-            border: 1px solid #1976d2;
+            font-weight: 500;
+            transition: background-color 0.2s, color 0.2s;
+            background-color: var(--color-dark-blue); /* 深藍按鈕 */
+            color: var(--color-white);
+            border: none;
+            font-size: 0.95em;
         }
 
         .ie-btn:hover {
-            background-color: #bbdefb;
+            background-color: #2F4D6B; /* 深一點的藍 */
         }
 
         .ie-label {
-            background-color: var(--color-secondary);
-            color: var(--color-primary);
-            border: 1px solid var(--color-primary);
+            background-color: var(--color-light-gray); /* 淺灰作為標籤背景 */
+            color: var(--color-dark-blue);
+            border: none;
+        }
+
+        #import-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         /* --- 複習模式樣式 --- */
+        .review-card {
+            grid-column: 1 / 3;
+            text-align: center;
+            align-items: center;
+        }
+
+        .review-card-container {
+            height: 300px; /* 增加高度 */
+            width: 100%;
+            margin: var(--spacing-unit) * 2 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .review-word-card {
-            border: 5px solid #ff9999; 
-            border-radius: 18px;
+            background-color: var(--color-dark-blue); /* 深藍色背景 */
+            border: 5px solid var(--color-red); /* 紅色邊框 */
+            border-radius: var(--border-radius) * 1.5; /* 更圓潤的角 */
+            width: 90%; /* 寬一點 */
+            max-width: 450px;
+            min-height: 250px; /* 增加高度 */
+            padding: var(--spacing-unit) * 2;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s, border-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--color-white); /* 文字白色 */
         }
 
         .review-word-card.flipped {
-            border-color: var(--color-primary);
+            border-color: var(--color-white); /* 翻轉後邊框變白 */
+            background-color: var(--color-red); /* 翻轉後背景變紅 */
         }
 
         .review-word-card .front-content {
-            font-size: 3.5em;
-            color: var(--color-primary);
+            font-size: 4em; /* 更大的字體 */
+            font-weight: 700;
+            color: var(--color-red); /* 答案前用紅色 */
+            line-height: 1;
+        }
+
+        .review-word-card.flipped .front-content {
+            color: var(--color-white); /* 翻轉後變白色 */
+        }
+
+        .review-word-card .back-content {
+            display: none;
+            font-size: 1.5em; /* 放大 */
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        .review-word-card.flipped .front-content {
+            display: none;
+        }
+
+        .review-word-card.flipped .back-content {
+            display: block;
+        }
+
+        .review-word-card .back-content .ans-hira, 
+        .review-word-card .back-content .ans-zh {
+            display: block;
+            margin-bottom: var(--spacing-unit) * 0.5;
         }
 
         .review-word-card .back-content .ans-hira {
             font-size: 1.8em;
-            color: #795548; 
+            color: var(--color-white);
+        }
+
+        .review-word-card .back-content .ans-zh {
+            font-size: 1.4em;
+            color: var(--color-accent-light);
+            font-style: normal;
+        }
+        
+        /* 複習卡片內的發音按鈕 */
+        .review-word-card .speak-btn {
+            font-size: 1.8em;
+            margin-top: var(--spacing-unit) * 1.5;
+            color: var(--color-white); /* 白色按鈕 */
+            border: 2px solid var(--color-white);
+            padding: 8px 15px;
+            border-radius: var(--border-radius) * 0.5;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .review-word-card .speak-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+
+        .review-controls {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-unit) * 1.5;
+            margin-top: var(--spacing-unit) * 2;
         }
 
         .judgement-controls {
-            gap: 15px;
+            display: flex;
+            gap: var(--spacing-unit);
+        }
+
+        .control-btn {
+            padding: var(--spacing-unit) var(--spacing-unit) * 1.5;
+            border: none;
+            border-radius: var(--border-radius) * 0.5;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 1em;
+        }
+
+        .primary-btn {
+            background-color: var(--color-dark-blue); /* 深藍色 */
+            color: var(--color-white);
+        }
+
+        .primary-btn:hover {
+            background-color: #2F4D6B;
         }
 
         .know-btn {
-            background-color: #66bb6a; /* 柔和綠色 */
+            background-color: #4CAF50; /* Google Material Design 綠 */
+            color: white;
         }
 
         .know-btn:hover {
-            background-color: #43a047;
+            background-color: #388E3C;
         }
 
         .dont-know-btn {
-            background-color: #ef5350; /* 柔和紅色 */
+            background-color: #F44336; /* Google Material Design 紅 */
+            color: white;
         }
 
         .dont-know-btn:hover {
-            background-color: #d32f2f;
+            background-color: #D32F2F;
+        }
+
+        .exit-btn {
+            background-color: var(--color-light-gray);
+            color: var(--color-dark-blue);
+        }
+        .exit-btn:hover {
+            background-color: #90A4AE;
+        }
+
+        .review-complete-message {
+            font-size: 1.5em;
+            color: var(--color-white);
+            margin-top: var(--spacing-unit) * 2;
+        }
+
+        /* --- Footer --- */
+        .app-footer {
+            text-align: center;
+            padding: var(--spacing-unit);
+            margin-top: auto; /* 將 footer 推到底部 */
+            color: var(--color-light-gray);
+            font-size: 0.8em;
         }
 
         /* --- RWD 調整 --- */
         @media (max-width: 900px) {
+            body {
+                padding: var(--spacing-unit);
+            }
             .container {
-                grid-template-columns: 1fr; 
+                grid-template-columns: 1fr; /* 單欄佈局 */
+                gap: var(--spacing-unit) * 1.5;
             }
             .form-card, .list-card, .import-export-card, .review-card {
                 grid-column: 1 / 2;
             }
             .app-header {
                 flex-direction: column;
-                gap: 15px;
+                gap: var(--spacing-unit);
+                margin-bottom: var(--spacing-unit) * 1.5;
+            }
+            .app-header h1 {
+                font-size: 2em;
             }
             .header-actions {
                 width: 100%;
-                justify-content: space-between;
+                justify-content: center;
+                gap: var(--spacing-unit) * 0.75;
+            }
+            .action-btn {
+                padding: var(--spacing-unit) * 0.6 var(--spacing-unit);
+                font-size: 0.85em;
             }
             .list-header {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 15px;
+                gap: var(--spacing-unit);
             }
             #search-input {
                 width: 100%;
             }
             .word-list {
                 grid-template-columns: 1fr;
+            }
+            .card {
+                padding: var(--spacing-unit) * 1.5;
+            }
+            .form-card h3, .list-card h3, .review-card h3 {
+                font-size: 1.5em;
+                margin-bottom: var(--spacing-unit);
+            }
+            .review-word-card {
+                width: 95%;
+                min-height: 200px;
+                padding: var(--spacing-unit);
+            }
+            .review-word-card .front-content {
+                font-size: 3em;
+            }
+            .review-word-card .back-content {
+                font-size: 1.2em;
+            }
+            .review-word-card .speak-btn {
+                font-size: 1.5em;
+            }
+            .control-btn {
+                padding: var(--spacing-unit) * 0.75 var(--spacing-unit);
+                font-size: 0.9em;
+            }
+            .judgement-controls {
+                gap: var(--spacing-unit) * 0.75;
             }
         }
     </style>
@@ -722,7 +915,7 @@
                         <span class="ans-hira">${currentWord.hira} (${currentWord.pitch})</span>
                         <span class="ans-zh">${currentWord.zh}</span>
                     </div>
-                    <button class="speak-btn" aria-label="發音" data-text="${currentWord.ja}" style="margin-top: 15px;">🔊</button>
+                    <button class="speak-btn" aria-label="發音" data-text="${currentWord.ja}">🔊</button>
                 </div>
             `;
             
