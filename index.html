@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的日文單字本 - SRS 複習系統</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>🇯🇵 日文單字記錄與複習</h1>
+
+    <div id="stats-summary" class="card-container">
+        <h3>📊 學習進度概覽</h3>
+        <p>總單字量: <span id="total-words">0</span> 個</p>
+        <p>今日需複習: <span id="due-words">0</span> 個</p>
+        <p>已掌握比例: <span id="mastered-ratio">0%</span></p>
+    </div>
+
+    <div class="card-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
+        <h3>🔊 發音設定</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <label for="speech-rate-select" style="white-space: nowrap;">語速:</label>
+            <select id="speech-rate-select" onchange="localStorage.setItem('speechRate', this.value)" style="padding: 8px; border: 1px solid var(--color-border-light); border-radius: 3px;">
+                <option value="0.5">慢 (0.5x)</option>
+                <option value="1.0" selected>正常 (1.0x)</option>
+                <option value="1.5">快 (1.5x)</option>
+                <option value="2.0">超快 (2.0x)</option>
+            </select>
+            
+            <label for="speech-voice-select" style="white-space: nowrap;">語音:</label>
+            <select id="speech-voice-select" onchange="selectVoiceAndSave(this.value)" style="padding: 8px; border: 1px solid var(--color-border-light); border-radius: 3px; flex-grow: 1;">
+                <option value="">正在載入...</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card-container">
+        <h2>➕ 新增單字</h2>
+        <div class="input-form">
+            <input type="text" id="word" placeholder="日文單字/詞彙 (必填)">
+            <input type="text" id="reading" placeholder="假名讀音 (非必填)">
+            <input type="text" id="meaning" placeholder="中文解釋 (必填)">
+            <input type="text" id="accent" placeholder="聲調/音高 (e.g., [0], [1], [頭高], [平板])">
+        </div>
+        <button onclick="addWord()">✅ 新增到單字本</button>
+    </div>
+    
+    <div class="card-container">
+        <h2>🧠 啟動複習測驗</h2>
+        
+        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+            <label for="quiz-direction" style="font-weight: bold; color: var(--color-secondary-dark); white-space: nowrap;">測驗方向:</label>
+            <select id="quiz-direction" style="padding: 8px; border: 1px solid var(--color-border-light); border-radius: 3px; flex-grow: 1;">
+                <option value="jp_to_cn">日文 → 中文 (看日文猜解釋)</option>
+                <option value="cn_to_jp">中文 → 日文 (看解釋猜日文)</option>
+            </select>
+        </div>
+        
+        <div id="quiz-buttons-group">
+            <button id="start-due-quiz-button" onclick="startQuiz('due')">🚨 複習今日到期單字 (<span id="due-count-button">0</span>)</button>
+            <button id="start-all-quiz-button" onclick="startQuiz('all')">📚 練習所有單字 (<span id="all-count-button">0</span>)</button>
+        </div>
+    </div>
+
+    <hr>
+    
+    <div id="quiz-container" class="card-container" style="display: none;">
+        <h2>📝 測驗模式</h2>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p>進度: <span id="quiz-count">第 0 / 0 個單字</span></p>
+        </div>
+
+        <div id="flashcard" class="flashcard">
+            
+            <div id="card-front" class="card-face card-front">
+                <h4 id="quiz-word"></h4>
+                <p id="quiz-reading"></p>
+            </div>
+            
+            <div id="card-back" class="card-face card-back" style="display: none;">
+                <p id="quiz-meaning"></p>
+            </div>
+            
+        </div>
+
+        <div class="quiz-controls" style="margin-bottom: 20px;">
+            <button id="flip-button" onclick="flipCard()">翻面看答案</button>
+        </div>
+
+        <div id="quiz-actions" class="quiz-controls" style="display: none;">
+            <button class="btn-mastery-1" onclick="submitQuizResult(1)">👍 不熟 (1天)</button>
+            <button class="btn-mastery-2" onclick="submitQuizResult(2)">👌 略熟 (3天+)</button>
+            <button class="btn-mastery-3" onclick="submitQuizResult(3)">✅ 掌握 (7天+)</button>
+        </div>
+        
+        <div class="quiz-controls" style="margin-top: 30px;">
+            <button id="exit-quiz-button" onclick="exitQuiz()" style="background-color: #777; color: white;">❌ 結束測驗，返回列表</button>
+        </div>
+        
+    </div>
+    
+    <div id="list-title">
+        <h2>🗃️ 單字列表</h2>
+    </div>
+
+    <div id="list-controls" class="card-container">
+        <input type="text" id="search-input" oninput="renderWordList()" placeholder="🔍 搜索單字、讀音或解釋">
+        
+        <select id="filter-mastery" onchange="renderWordList()">
+            <option value="all">📚 所有單字</option>
+            <option value="1">⭐ 不熟</option>
+            <option value="2">⭐⭐ 略熟</option>
+            <option value="3">⭐⭐⭐ 已掌握</option>
+            <option value="review">🚨 今日需複習</option>
+        </select>
+        
+        <select id="sort-by" onchange="changeSortOrder(this.value)">
+            <option value="default">預設排序 (手動順序/到期日混合)</option>
+            <option value="mastery_asc">熟練度由低到高 (不熟優先)</option>
+            <option value="mastery_desc">熟練度由高到低 (已掌握優先)</option>
+        </select>
+        
+        <div class="page-controls">
+            <label for="words-per-page">每頁顯示:</label>
+            <select id="words-per-page" onchange="changeWordsPerPage(this.value)">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="all">全部</option>
+            </select>
+        </div>
+        
+        <div class="data-controls">
+             <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+             <button onclick="document.getElementById('import-file').click()">📤 匯入備份 (JSON)</button>
+             <button onclick="exportData()">💾 匯出備份 (JSON)</button>
+        </div>
+    </div>
+
+    <div id="word-list">
+        </div>
+    
+    <div id="pagination-controls" class="card-container" style="justify-content: center; display: none;">
+        </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

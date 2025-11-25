@@ -1,0 +1,683 @@
+/* --- style.css (完整版本) --- */
+
+/* --- 日式禪意簡約風格變數 --- */
+:root {
+    --color-primary-red: #c94042; /* 主色：朱紅 (類似日之丸) */
+    --color-secondary-dark: #3a3a3a; /* 輔色：深炭灰 */
+    --color-background: #f7f7f7; /* 淺米白背景 */
+    --color-card-background: #ffffff; /* 卡片白底 */
+    --color-text-dark: #333333; /* 主要文字 */
+    --color-text-light: #888888; /* 輔助文字 */
+    --color-border-light: #e0e0e0; /* 輕微邊框 */
+    --color-accent-bamboo: #4a69bd; /* 強調色：竹青色 */
+}
+
+/* --- 全域設定 --- */
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px; 
+    background-color: var(--color-background);
+    color: var(--color-text-dark);
+    line-height: 1.8;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 模擬背景紋理 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 輕微米色紋理，增加質感 */
+    background-image: radial-gradient(circle, var(--color-background) 80%, rgba(255, 255, 255, 0.5) 100%);
+    opacity: 0.7;
+    z-index: -1;
+}
+
+h1 {
+    font-family: 'Noto Serif JP', serif;
+    color: var(--color-primary-red);
+    text-align: center;
+    border-bottom: 3px solid var(--color-primary-red);
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+}
+
+h2 {
+    color: var(--color-secondary-dark);
+    margin-top: 0;
+    font-size: 1.5em;
+}
+
+h3 {
+    color: var(--color-accent-bamboo);
+    margin: 0 0 10px 0;
+}
+
+hr {
+    border: 0;
+    border-top: 1px dashed var(--color-border-light);
+    margin: 30px 0;
+}
+
+/* --- 通用容器與排版 --- */
+.card-container {
+    background-color: var(--color-card-background);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid var(--color-border-light);
+}
+
+.input-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.input-form input {
+    padding: 10px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 4px;
+    transition: border-color 0.3s;
+    font-family: 'Noto Sans TC', sans-serif;
+}
+
+.input-form input:focus {
+    border-color: var(--color-accent-bamboo);
+    outline: none;
+}
+
+/* --- 按鈕樣式 --- */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap; /* 防止按鈕文字換行 */
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* 主按鈕 (新增) */
+.card-container > button {
+    width: 100%;
+    background-color: var(--color-primary-red);
+    color: white;
+    margin-top: 10px;
+}
+
+.card-container > button:hover {
+    background-color: #a83335;
+}
+
+/* 測驗啟動按鈕群組 */
+#quiz-buttons-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#quiz-buttons-group button {
+    flex: 1;
+    background-color: var(--color-accent-bamboo);
+    color: white;
+}
+
+#quiz-buttons-group button:hover {
+    background-color: #3f589c;
+}
+
+/* 數據控制按鈕群組 (RWD 優化目標) */
+.data-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex: 1 1 100%; /* 確保它佔滿一行 */
+}
+
+.data-controls button {
+    flex: 1; /* RWD 優化：讓匯入/匯出按鈕平分寬度 */
+    background-color: #6c757d;
+    color: white;
+}
+
+.data-controls button:hover {
+    background-color: #5a6268;
+}
+
+/* --- 單字列表控制項 --- */
+#list-title {
+    margin-top: 35px;
+    margin-bottom: 10px;
+}
+
+#list-controls {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 10px; 
+    align-items: center;
+}
+
+/* ⭐ 修正點 2: 寬度控制 - 桌面版佈局 (維持上次穩定配置) ⭐ */
+
+#list-controls input[type="text"] {
+    /* 搜尋欄佔大約 40% 的空間 */
+    flex: 1 0 300px; /* 最小寬度 300px */
+    max-width: 40%;
+    padding: 10px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 4px;
+}
+
+#list-controls select {
+    /* 篩選與排序佔大約 20% 的空間 */
+    flex: 1 0 160px; /* 最小寬度 160px */
+    max-width: 25%; 
+    padding: 10px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.page-controls {
+    /* 每頁顯示佔大約 15% 的空間 */
+    display: flex;
+    align-items: center; 
+    gap: 10px; 
+    margin-bottom: 0; /* 讓所有控制項對齊 */
+    margin-top: 0; 
+    flex: 1 0 150px; /* 最小寬度 150px */
+    max-width: 20%; 
+}
+
+.page-controls label {
+    font-weight: bold; 
+    color: var(--color-secondary-dark); 
+    white-space: nowrap;
+}
+
+.page-controls select {
+    padding: 8px; 
+    border: 1px solid var(--color-border-light); 
+    border-radius: 3px; 
+    flex-grow: 1; /* 讓 select 填充 .page-controls 內部的剩餘空間 */
+}
+/* ---------------------------------------------------- */
+
+
+/* --- 單字卡片列表 --- */
+#word-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.word-card {
+    background-color: var(--color-card-background);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    width: calc(50% - 7.5px); /* 兩欄佈局 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    
+    /* 拖曳樣式 */
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    cursor: grab;
+}
+
+.word-card.dragging {
+    opacity: 0.5;
+    transform: scale(1.05);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 拖曳目標視覺回饋 */
+.word-card.drop-target-before {
+    border-top: 3px solid var(--color-primary-red);
+}
+
+.word-card.drop-target-after {
+    border-bottom: 3px solid var(--color-primary-red);
+}
+
+/* 單字內容 */
+.word-main {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.japanese {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--color-primary-red);
+    font-family: 'Noto Serif JP', serif;
+    cursor: pointer;
+}
+
+.reading, .accent-pitch {
+    font-size: 0.9em;
+    color: var(--color-accent-bamboo);
+    font-weight: 400;
+}
+
+.accent-pitch {
+    color: #007bff; /* 藍色用於聲調 */
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+.meaning {
+    color: var(--color-text-dark);
+    font-size: 1em;
+    margin-top: 0;
+    flex-grow: 1; 
+}
+
+.review-info {
+    font-size: 0.85em;
+    color: var(--color-text-light);
+    margin-top: 5px;
+}
+
+.review-info .is-due {
+    color: var(--color-primary-red);
+    font-weight: 700;
+}
+
+/* 動作群組 (卡片底部) */
+.actions {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+}
+
+/* 熟練度按鈕群組 */
+.btn-mastery-group {
+    display: flex;
+    gap: 5px;
+    flex-grow: 1;
+    min-width: 150px; 
+    order: 3; 
+    margin-top: 5px;
+    width: 100%; /* 佔滿一行 */
+}
+
+.btn-mastery-group button {
+    flex: 1;
+    padding: 8px 5px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+/* 編輯和刪除按鈕 */
+.btn-edit, .btn-delete {
+    order: 2; 
+    padding: 8px 10px;
+    font-size: 0.8em;
+    flex-basis: auto; 
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: var(--color-text-dark);
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+/* ⭐ 修正點 1: 日系柔和風格顏色 (再次優化) ⭐ */
+
+/* 熟練度 1: 不熟 (茜色 - Akane-iro) */
+.btn-mastery-1 { 
+    background-color: #c8817a; /* 按鈕顏色：較淺的茜色 */
+    color: white; 
+}
+.btn-mastery-1:hover { background-color: #b26861; }
+.word-card.mastery-1 { 
+    border-left: 5px solid #a05252; /* 邊框顏色：較深的茜色，用來區分 */
+}
+
+/* 熟練度 2: 略熟 (朽葉色 - Kuchiba-iro) */
+.btn-mastery-2 { 
+    background-color: #c9ab86; /* 按鈕顏色：較淺的朽葉色 */
+    color: var(--color-text-dark); 
+}
+.btn-mastery-2:hover { background-color: #b69871; }
+.word-card.mastery-2 { 
+    border-left: 5px solid #9e7f5e; /* 邊框顏色：較深的朽葉色 */
+}
+
+/* 熟練度 3: 掌握 (若草色 - Wakakusa-iro) */
+.btn-mastery-3 { 
+    background-color: #9ac29d; /* 按鈕顏色：較淺的若草色 */
+    color: var(--color-text-dark); 
+}
+.btn-mastery-3:hover { background-color: #83b087; }
+.word-card.mastery-3 { 
+    border-left: 5px solid #6b9972; /* 邊框顏色：較深的若草色 */
+}
+
+
+/* --- 測驗卡片樣式 --- */
+#quiz-container {
+    display: none; 
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 300px;
+}
+
+.flashcard {
+    width: 100%;
+    max-width: 450px;
+    height: 150px; 
+    min-height: 150px;
+    perspective: 1000px;
+    position: relative;
+    margin: 20px 0;
+    transition: height 0.3s ease-in-out; 
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    background-color: var(--color-card-background);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    transition: transform 0.5s;
+    box-sizing: border-box;
+}
+
+.card-front {
+    transform: rotateY(0deg);
+    z-index: 2;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    z-index: 1;
+}
+
+.flashcard.flipped .card-front {
+    transform: rotateY(-180deg);
+}
+
+.flashcard.flipped .card-back {
+    transform: rotateY(0deg);
+}
+
+#quiz-word {
+    font-size: 2.5em;
+    font-family: 'Noto Serif JP', serif;
+    color: var(--color-primary-red);
+    margin: 0;
+    cursor: pointer;
+}
+
+#quiz-reading {
+    font-size: 1.2em;
+    color: var(--color-accent-bamboo);
+    margin: 5px 0 15px 0;
+}
+
+#quiz-meaning {
+    font-size: 1.8em;
+    color: var(--color-text-dark);
+    margin: 0;
+}
+
+/* 用於中文內容的字體設定 */
+.cn-font h4, .cn-font p {
+    font-family: 'Noto Sans TC', sans-serif; 
+}
+
+.quiz-controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 450px;
+}
+
+#flip-button {
+    flex: 1;
+    background-color: #f0f0f0;
+    color: var(--color-secondary-dark);
+    border: 1px solid var(--color-border-light);
+}
+
+#flip-button:hover {
+    background-color: #e0e0e0;
+}
+
+#quiz-actions {
+    display: none;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+}
+
+#quiz-actions button {
+    flex: 1; 
+    padding: 12px 10px;
+    font-size: 0.9em;
+}
+
+/* --- 分頁控制項 --- */
+#pagination-controls {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 15px 20px;
+    margin-top: 10px;
+}
+
+.page-button {
+    background-color: #f0f0f0;
+    color: var(--color-text-dark);
+    border: 1px solid var(--color-border-light);
+    padding: 8px 12px;
+    font-size: 0.9em;
+}
+
+.page-button:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.active-page-button {
+    background-color: var(--color-accent-bamboo);
+    color: white;
+    border-color: var(--color-accent-bamboo);
+}
+
+.active-page-button:hover {
+    background-color: var(--color-accent-bamboo); 
+}
+
+.disabled-button {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+/* --- RWD 響應式設計 --- */
+
+/* 平板設備 (最大寬度 768px) */
+@media (max-width: 768px) {
+    
+    /* 單字列表：保持兩欄，但寬度調整 */
+    #word-list {
+        gap: 10px;
+    }
+
+    .word-card {
+        width: calc(50% - 5px); 
+    }
+    
+    /* 列表控制項 RWD 優化：強制堆疊，確保在窄螢幕上不溢出 */
+    #list-controls {
+        flex-direction: column; 
+        align-items: stretch;
+    }
+
+    #list-controls input[type="text"],
+    #list-controls select,
+    .page-controls,
+    .data-controls {
+        flex: none; /* 禁用 Flex 屬性，讓它們各自佔一行 */
+        max-width: none;
+        margin-bottom: 5px;
+    }
+    
+    .page-controls {
+        /* 在手機/平板上，讓 "每頁顯示" 組件內部保持水平排列 */
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .page-controls select {
+        flex-grow: 1; /* 內部 Select 可以伸展 */
+    }
+
+    /* 動作群組 (卡片底部) RWD 優化 */
+    .actions {
+        flex-direction: row; 
+        flex-wrap: wrap; 
+    }
+    
+    .review-info {
+        width: 100%; 
+        margin-bottom: 5px;
+        font-size: 0.85em;
+    }
+    
+    /* 讓編輯/刪除按鈕分攤 Review-info 下的空間 */
+    .btn-edit, .btn-delete {
+        flex-basis: calc(50% - 5px); 
+        order: 2;
+    }
+
+    /* 熟練度按鈕群組 (讓它佔滿一行) */
+    .btn-mastery-group {
+        order: 3;
+        width: 100%;
+        margin-top: 5px;
+    }
+}
+
+/* 手機設備 (最大寬度 480px) */
+@media (max-width: 480px) {
+    
+    /* 標題與內邊距 */
+    body {
+        padding: 15px 10px;
+    }
+    
+    /* 單字列表：變成單欄卡片 */
+    .word-card {
+        width: 100%; 
+        padding: 12px; 
+    }
+    
+    /* 新增單字輸入表單：變成單欄 */
+    .input-form {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    /* 測驗啟動按鈕群組：垂直堆疊 */
+    #quiz-buttons-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* 數據控制按鈕群組：垂直堆疊 */
+    .data-controls {
+        flex-direction: column;
+    }
+    
+    .data-controls button {
+        flex: none;
+        width: 100%;
+    }
+
+    /* 動作按鈕：進一步優化堆疊 */
+    .actions {
+        flex-direction: row;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    
+    .review-info {
+        flex-basis: 100%; 
+        margin-bottom: 8px;
+    }
+
+    /* 讓編輯和刪除按鈕分攤 Review-info 下方的空間 */
+    .btn-edit, .btn-delete {
+        flex-basis: calc(50% - 4px); 
+        order: 2;
+    }
+
+    /* 讓熟練度按鈕佔滿一行 */
+    .btn-mastery-group {
+        width: 100%;
+        order: 3; 
+        margin-top: 8px;
+    }
+
+    /* 調整測驗卡片字體大小 */
+    #quiz-word {
+        font-size: 2em;
+    }
+    
+    #quiz-reading {
+        font-size: 1em;
+    }
+
+    #quiz-meaning {
+        font-size: 1.4em;
+    }
+
+    #quiz-actions button {
+        padding: 10px 5px;
+        font-size: 0.8em;
+    }
+}
