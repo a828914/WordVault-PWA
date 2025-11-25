@@ -1,2 +1,0 @@
-# WordVault-PWA
-Japanese characters
